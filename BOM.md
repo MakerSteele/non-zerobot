@@ -75,7 +75,7 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 
 | Qty | Part | Notes |
 |---|---|---|
-| 4 | M2 self-tapping pan-head screw, about 6 mm long | [Amazon](https://a.co/d/059v6QbO): HanTof 750-piece M1.7–M3 assortment | Mounts the carrier. They screw straight into the standoffs printed on the chassis deck, so no spacers needed |
+| 4 | M2 self-tapping pan-head screw, 4–6 mm long (M2 × 4 on the original) | [Amazon](https://a.co/d/059v6QbO): HanTof 750-piece M1.7–M3 assortment | Mounts the carrier. They screw straight into the standoffs printed on the chassis deck, so no spacers needed. **Use M2, not M2.3:** the board's holes are 2.2 mm |
 | 1 set | Printed chassis, lid, wheels, rear skid, battery holder | Based on ZDV's ZeroBot Pro V1 ([Thingiverse 3232512](https://www.thingiverse.com/thing:3232512)). 🟫 Modified STL files to be added |
 
 ## Planned parts (not in the design yet)
