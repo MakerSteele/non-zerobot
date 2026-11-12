@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.zip
+*.log
+.zerobot_tune.json
+recordings/
