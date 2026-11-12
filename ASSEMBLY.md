@@ -77,10 +77,8 @@ Solder the lowest parts first so the board lies flat while you work. Parts go in
 
 ### 3.1 Resistors and the small capacitor
 - The two **battery divider** resistors (10 kΩ) near the rear
-- The **headlight** resistors in the middle: the red, green and blue positions only. **Leave the white positions empty.**
+- The **headlight** resistors in the middle: **270 Ω** for red, **180 Ω** for green and blue, and **1 kΩ** for the three transistor bases. Fill the red, green and blue positions only. **Leave the white positions empty.**
 - The small **battery filter** capacitor (100 nF) beside the divider
-
-🟫 **To be added:** final headlight resistor values. Test with your own LEDs.
 
 ✅ **Done when:** every resistor sits flat, and the snipped legs stick out no more than 2 mm.
 
@@ -123,7 +121,14 @@ The bigger can is for the **battery** (470 µF) and the smaller one for the **mo
 The motor driver (TB6612) and battery sensor (ADS1115) come with loose header strips. Push the strips into the carrier's sockets, sit the module on top, and solder. The sockets hold the pins straight. Then pull the modules back out for now.
 
 ### 4.2 The motor boost's pins
-The motor boost is the small board with a coil on it. Its three pins (`Vi`, `G`, `Vo`) must point **down, away from the parts side**, so it lies flat with its parts facing up. Buy the "without pin" version, or move the header to the other side.
+The motor boost is the small board with a coil on it. Its three pins (`Vi`, `G`, `Vo`) must point **down, away from the parts side**, so it lies flat with its parts facing up.
+
+The boost comes with its pin header already soldered on, so move it:
+1. Desolder the 3-pin header. Solder wick or a solder sucker works best. Heat one pin at a time and rock the header out.
+2. Clear the three holes.
+3. Fit a straight 3-pin header from the parts-free side, so the pins point **down**, and solder it on the parts side.
+
+🟫 **To be added:** photos of this step.
 
 > The boost is fixed at 6 V, with no adjusting screw. Upside down, its in and out swap places and it simply gives no output.
 
@@ -148,7 +153,9 @@ The switch has two separate halves (poles). Four pads on the rear edge go to it:
 
 ✅ **Done when:** with the meter on continuity and the switch ON, BATT IN beeps to BATT OUT, PI 5V IN beeps to PI 5V OUT, and no BATT pad beeps to any PI 5V pad. With the switch OFF, nothing beeps.
 
-🟫 **To be added:** wire colours and lengths, and which switch tabs are which, once the switch part is final.
+**Finding the two halves:** on the 4-pin KCD1 switch, each pair of tabs that beeps together on continuity with the switch ON is one half. With the switch OFF, nothing should beep. Work this out with the meter before soldering.
+
+🟫 **To be added:** wire colours and lengths, and a photo of which tabs pair up.
 
 ### 5.3 Wire the charger board
 The charger board sits in the shell with its USB-C port through the wall. It charges the battery and makes the Pi's 5 V.
@@ -159,6 +166,10 @@ The charger board sits in the shell with its USB-C port through the wall. It cha
 | 5 V output + and − | `5V IN` pads (+ is the square pad) |
 
 🛑 **Stop and check:** each + goes to a square + pad, and the battery side and the 5 V side are not swapped.
+
+**Set its output voltage first.** This board has a small adjustment screw (trimmer) and isn't always set to 5 V from the factory. Before wiring it to the carrier, connect a charged cell to its B+ and B− pads, put the meter on its output + and −, and turn the screw gently until it reads **5.1 V**.
+
+🛑 **Stop and check:** the output reads 5.0–5.2 V. Too high can damage the Pi.
 
 > The charger connects before the switch, so the robot charges while it's switched off. Its booster slowly drains the cells even when the robot is off, so unplug the battery if you're storing the robot for weeks.
 

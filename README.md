@@ -30,7 +30,7 @@ It started life as a Raspberry Pi Zero robot — hence the name. Pi Zeros got ha
 | **Motor driver** | TB6612FNG board |
 | **Battery** | Two 18650 cells in parallel, with a charger/5 V boost board for the Pi and a 6 V boost for the motors |
 | **Battery meter** | ADS1115 ADC board |
-| **Headlights** | 8 mm common-anode RGB LEDs |
+| **Headlights** | 10 mm common-anode RGB LEDs |
 
 A carrier circuit board that ties all of this together is in progress and will be added here once the current revision is proven.
 
