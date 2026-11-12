@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ZeroBot Talk</title>
+<style>
+  /* Same palette and fonts as the control page. No webfonts (works offline). */
+  :root {
+    --bg: #0a0c0f; --panel: #111318; --border: #1e2530;
+    --accent: #00e5ff; --accent2: #ff3d00; --green: #00e676;
+    --text: #c8d6e5; --dim: #4a5568;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: ui-monospace, 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+    padding: 12px; max-width: 520px; margin: 0 auto; user-select: none;
+  }
+  header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  h1 { font-size: 1rem; letter-spacing: 3px; color: var(--accent); }
+  .ver { font-size: 0.6rem; color: var(--dim); }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+          padding: 12px; margin-bottom: 10px; }
+  .card h2 { font-size: 0.65rem; letter-spacing: 2px; color: var(--dim); margin-bottom: 8px; }
+  button {
+    background: var(--border); border: 1px solid var(--dim); color: var(--text);
+    font-family: inherit; font-size: 0.8rem; letter-spacing: 1px;
+    padding: 10px 14px; border-radius: 8px; cursor: pointer;
+  }
+  button:disabled { opacity: 0.4; }
+  button.on { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  button.go { border-color: var(--green); color: var(--green); }
+  #talk-btn { width: 100%; padding: 28px 0; font-size: 1.2rem; letter-spacing: 4px; }
+  #talk-btn.on { background: var(--green); border-color: var(--green); color: #000; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .row > * { flex: 1 1 auto; }
+  input[type=text] {
+    background: var(--bg); border: 1px solid var(--dim); color: var(--text);
+    font-family: inherit; font-size: 0.9rem; padding: 10px; border-radius: 8px; min-width: 0;
+  }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .meter { height: 8px; background: var(--bg); border: 1px solid var(--border);
+           border-radius: 4px; overflow: hidden; margin-top: 8px; }
+  .meter div { height: 100%; width: 0%; background: var(--green); transition: width 60ms; }
+  #status { font-size: 0.75rem; min-height: 1.2em; margin: 6px 2px 10px; }
+  #status.err { color: var(--accent2); }
+  #status.ok { color: var(--green); }
+  .hint { font-size: 0.65rem; color: var(--dim); margin-top: 6px; line-height: 1.4; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ZEROBOT TALK</h1>
+  <span class="ver">{{ version }}</span>
+</header>
+
+<div id="status">ready</div>
+
+<!-- Live talk: tap to start, tap to stop. Driving is locked while it talks. -->
+<div class="card">
+  <h2>LIVE</h2>
+  <button id="talk-btn" onclick="toggleLive()">TALK</button>
+  <div class="meter"><div id="mic-meter"></div></div>
+  <div class="hint" id="live-stats">dropouts 0 &middot; underruns 0</div>
+  <div class="hint">Tap, talk, tap again. About half a second of delay. The mic stays on for 90 s after you stop, so the next tap is instant. The robot can't drive while it's talking.</div>
+</div>
+
+<!-- Record a clip on the phone, listen to it, then send it. -->
+<div class="card">
+  <h2>RECORD</h2>
+  <div class="row">
+    <button id="rec-btn" onclick="toggleRecord()">● REC</button>
+    <button id="preview-btn" onclick="previewClip()" disabled>▶ LISTEN</button>
+    <button id="send-btn" class="go" onclick="sendRecording()" disabled>SEND</button>
+  </div>
+  <div class="hint" id="rec-info">Up to 60 seconds.</div>
+</div>
+
+<!-- Any sound file the phone can play: voice memo, mp3, m4a, wav... -->
+<div class="card">
+  <h2>SEND A FILE</h2>
+  <input type="file" id="file-in" accept="audio/*" style="display:none" onchange="sendFile(this)">
+  <button onclick="document.getElementById('file-in').click()" style="width:100%">CHOOSE AUDIO FILE</button>
+</div>
+
+<!-- Text-to-speech on the robot. -->
+<div class="card">
+  <h2>SAY</h2>
+  <div class="row">
+    <input type="text" id="say-text" placeholder="take me to your leader" maxlength="300"
+           onkeydown="if (event.key === 'Enter') sayText()">
+    <button class="go" onclick="sayText()" style="flex:0 0 auto">SAY</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>LOUDNESS <span id="level-val">6</span> / 10</h2>
+  <input type="range" id="level" min="1" max="10" step="1" value="6"
+         oninput="document.getElementById('level-val').textContent = this.value; sendSoon('level', this.value)"
+         onchange="sendNow('level', this.value)">
+  <h2 style="margin-top:12px">SMOOTH <span id="smooth-val">5</span> / 10</h2>
+  <input type="range" id="smooth" min="0" max="10" step="1" value="5"
+         oninput="document.getElementById('smooth-val').textContent = this.value; sendSoon('smooth', this.value)"
+         onchange="sendNow('smooth', this.value)">
+  <h2 style="margin-top:12px">CLARITY <span id="clarity-val">0</span> / 10</h2>
+  <input type="range" id="clarity" min="0" max="10" step="1" value="0"
+         oninput="document.getElementById('clarity-val').textContent = this.value; sendSoon('clarity', this.value)"
+         onchange="sendNow('clarity', this.value)">
+  <h2 style="margin-top:12px">POWER LIMIT <span id="power-val">75</span>%</h2>
+  <input type="range" id="power" min="10" max="100" step="5" value="75"
+         oninput="document.getElementById('power-val').textContent = this.value; sendSoon('power', this.value)"
+         onchange="sendNow('power', this.value)">
+  <div class="hint" id="power-stats">battery -- &middot; drive 0%</div>
+  <h2 style="margin-top:12px">TONE TEST</h2>
+  <div class="row">
+    <button id="fixed62-btn" onclick="toggleTone('fixed62')">62 µs: OFF</button>
+    <button id="dither-btn" class="on" onclick="toggleTone('dither')">DITHER: ON</button>
+  </div>
+  <div class="hint">Flip these while a clip plays to find the tinny sound. Normal = 62 µs OFF, DITHER ON.
+    Not saved - a restart puts them back to normal.</div>
+  <div class="row" style="margin-top:10px">
+    <button onclick="stopAll()">■ STOP SOUND</button>
+  </div>
+  <div class="hint">SMOOTH 0 = crisp and buzzy (the first version), 10 = round and a bit quieter.
+    CLARITY cuts more bass and lifts the treble for crisper words (it does not save power - POWER LIMIT does that).
+    0 = the old sound.<br>
+    Changes apply right away, even mid-sentence.<br>
+    POWER LIMIT caps how hard the motors are pushed on average. Too high and the
+    battery sags until the Pi reboots - raise it a step at a time while watching the battery.<br>LOUDNESS 6 = loud and clear. Above 7 the robot starts to twitch more than it gets louder.</div>
+</div>
+
+<div class="hint" style="text-align:center">
+  <a href="#" onclick="backToDriving(); return false;">back to driving</a>
+</div>
+
+<script>
+// ── Everything the robot hears is 16 kHz mono 16-bit PCM. The phone does the
+// decoding and resampling, so the Pi never needs ffmpeg. ──────────────────
+const OUT_RATE = 16000;
+const LIVE_BLOCK = 3200;          // samples per live POST = 200 ms (100 ms sends were too many over WiFi)
+const MAX_REC_SECONDS = 60;
+
+function status(msg, kind) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = kind || '';
+}
+
+function backToDriving() {
+  window.location.href = `http://${window.location.hostname}:5000/`;
+}
+
+async function post(path, body, isJson) {
+  const opts = { method: 'POST', body: body };
+  if (isJson) {
+    opts.headers = { 'Content-Type': 'application/json' };
+    opts.body = JSON.stringify(body);
+  } else {
+    opts.headers = { 'Content-Type': 'application/octet-stream' };
+  }
+  const r = await fetch(path, opts);
+  let j = {};
+  try { j = await r.json(); } catch (e) {}
+  if (!r.ok) throw new Error(j.message || j.error || `HTTP ${r.status}`);
+  return j;
+}
+
+// Float32 (-1..1) -> Int16 little-endian bytes
+function toPcm16(f32) {
+  const out = new Int16Array(f32.length);
+  for (let i = 0; i < f32.length; i++) {
+    let v = Math.max(-1, Math.min(1, f32[i]));
+    out[i] = v < 0 ? v * 32768 : v * 32767;
+  }
+  return out;
+}
+
+// Streaming linear resampler, any rate -> 16 kHz. Carries its position and
+// last sample between blocks so there are no clicks at block edges.
+class Downsampler {
+  constructor(inRate) { this.step = inRate / OUT_RATE; this.pos = 0; this.last = 0; }
+  push(input) {
+    const out = [];
+    let pos = this.pos;
+    while (pos < input.length - 1) {
+      const i = Math.floor(pos);
+      const fr = pos - i;
+      const a = i < 0 ? this.last : input[i];
+      const b = input[i + 1];
+      out.push(a + (b - a) * fr);
+      pos += this.step;
+    }
+    this.pos = pos - input.length;
+    this.last = input[input.length - 1];
+    return Float32Array.from(out);
+  }
+}
+
+// ── Microphone ──────────────────────────────────────────────────────────────
+// One mic pipeline serves both LIVE and RECORD. The phone's own echo
+// cancelling, noise suppression and auto-gain are switched on.
+//
+// 10c cut off the first words: the mic was opened fresh on every tap, and a
+// phone mic plus its noise/gain processing takes up to a second to wake.
+// Now the mic stays open between taps while this page is open (closing after
+// MIC_IDLE_MS idle, or when the page is hidden), and the last PREROLL samples
+// are always kept - so a tap sends the 0.3 s BEFORE it too, and a word
+// started a hair before the tap still makes it.
+const PREROLL = 4800;                 // 0.3 s at 16 kHz
+const MIC_IDLE_MS = 90000;
+let audioCtx = null, micStream = null, micNode = null, procNode = null;
+let down = null, micUser = null;      // micUser: receives 16 kHz Float32 blocks while live/recording
+let preroll = new Float32Array(0), micIdleTimer = null, micStarting = null;
+
+function keepPreroll(block) {
+  const joined = new Float32Array(preroll.length + block.length);
+  joined.set(preroll, 0);
+  joined.set(block, preroll.length);
+  preroll = joined.length > PREROLL ? joined.slice(joined.length - PREROLL) : joined;
+}
+
+function takePreroll() {
+  const p = preroll;
+  preroll = new Float32Array(0);
+  return p;
+}
+
+// Opens the mic if it isn't open. Resolves once the FIRST audio block has
+// actually arrived, so the UI only says "talk now" when it's true.
+function ensureMic() {
+  clearTimeout(micIdleTimer);
+  if (procNode) return Promise.resolve();
+  if (micStarting) return micStarting;
+  if (!window.isSecureContext || !navigator.mediaDevices) {
+    return Promise.reject(new Error('The mic needs the https:// address of this page (port 5443).'));
+  }
+  // Create the audio context BEFORE the first await: iPhones only let it run
+  // if it's made directly inside the tap.
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const resumed = audioCtx.resume();
+  micStarting = (async () => {
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }
+      });
+      await resumed;
+      micNode = audioCtx.createMediaStreamSource(micStream);
+      // ScriptProcessor is old but works on every phone browser without a
+      // separate worklet file. 4096 frames = ~85 ms at 48 kHz.
+      procNode = audioCtx.createScriptProcessor(4096, 1, 1);
+      down = new Downsampler(audioCtx.sampleRate);
+      let gotFirst;
+      const first = new Promise(res => { gotFirst = res; });
+      procNode.onaudioprocess = (e) => {
+        const block = down.push(e.inputBuffer.getChannelData(0));
+        let peak = 0;
+        for (let i = 0; i < block.length; i++) peak = Math.max(peak, Math.abs(block[i]));
+        document.getElementById('mic-meter').style.width = Math.min(100, peak * 140) + '%';
+        if (micUser) micUser(block);
+        else keepPreroll(block);
+        gotFirst();
+      };
+      micNode.connect(procNode);
+      procNode.connect(audioCtx.destination);   // required for onaudioprocess to fire; output is silent
+      await Promise.race([first, new Promise(res => setTimeout(res, 3000))]);
+    } catch (e) {
+      micStop();
+      throw e;
+    } finally {
+      micStarting = null;
+    }
+  })();
+  return micStarting;
+}
+
+function micIdleLater() {
+  clearTimeout(micIdleTimer);
+  micIdleTimer = setTimeout(() => { if (!live && !rec) micStop(); }, MIC_IDLE_MS);
+}
+
+function micStop() {
+  clearTimeout(micIdleTimer);
+  micUser = null;
+  try { procNode && procNode.disconnect(); } catch (e) {}
+  try { micNode && micNode.disconnect(); } catch (e) {}
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  if (audioCtx) audioCtx.close();
+  audioCtx = micStream = micNode = procNode = null;
+  preroll = new Float32Array(0);
+  document.getElementById('mic-meter').style.width = '0%';
+}
+
+// Leaving the page (switching app, locking the phone) releases the mic.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    if (live) toggleLive();
+    if (rec) finishRecord();
+    micStop();
+  }
+});
+
+// ── LIVE ────────────────────────────────────────────────────────────────────
+let live = false, liveSeq = 0, livePending = [], liveCount = 0, liveSid = '';
+
+function liveUser(block) {
+  for (let i = 0; i < block.length; i++) livePending.push(block[i]);
+  liveCount += block.length;
+  while (livePending.length >= LIVE_BLOCK) sendLive(false);
+}
+
+async function toggleLive() {
+  if (rec) { status('stop recording first', 'err'); return; }
+  const btn = document.getElementById('talk-btn');
+  if (live) {
+    live = false;
+    micUser = null;
+    btn.classList.remove('on');
+    btn.textContent = 'TALK';
+    sendLive(true);
+    micIdleLater();
+    status('done talking - mic stays ready for 90 s');
+    return;
+  }
+  try {
+    btn.textContent = 'STARTING MIC...';
+    await ensureMic();
+    // every tap gets its own id, so the robot never mistakes it for the last one
+    liveSid = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    liveSeq = 0; livePending = Array.from(takePreroll()); liveCount = 0;
+    micUser = liveUser;
+    live = true;
+    btn.classList.add('on');
+    btn.textContent = 'TALKING - TAP TO STOP';
+    status('live - talk now', 'ok');
+    while (livePending.length >= LIVE_BLOCK) sendLive(false);
+  } catch (e) {
+    btn.textContent = 'TALK';
+    status(micError(e), 'err');
+  }
+}
+
+function sendLive(end) {
+  const n = end ? livePending.length : LIVE_BLOCK;
+  const block = Float32Array.from(livePending.splice(0, n));
+  const seq = liveSeq++;
+  fetch(`/voice/live?sid=${liveSid}&seq=${seq}${end ? '&end=1' : ''}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/octet-stream' },
+    body: toPcm16(block).buffer
+  }).then(async r => {
+    if (!r.ok && live) {
+      let j = {}; try { j = await r.json(); } catch (e) {}
+      status('robot: ' + (j.message || r.status), 'err');
+    }
+  }).catch(() => { if (live) status('lost contact with the robot', 'err'); });
+}
+
+function micError(e) {
+  if (e && e.name === 'NotAllowedError') return 'Mic permission was refused. Allow it for this site and try again.';
+  return (e && e.message) || String(e);
+}
+
+// ── RECORD ──────────────────────────────────────────────────────────────────
+let rec = false, recChunks = [], recLen = 0, recClip = null;
+
+function recUser(block) {
+  recChunks.push(block);
+  recLen += block.length;
+  document.getElementById('rec-info').textContent = `recording ${(recLen / OUT_RATE).toFixed(1)} s`;
+  if (recLen >= MAX_REC_SECONDS * OUT_RATE) finishRecord();
+}
+
+async function toggleRecord() {
+  if (live) { status('stop live talk first', 'err'); return; }
+  const btn = document.getElementById('rec-btn');
+  if (rec) { finishRecord(); return; }
+  try {
+    btn.textContent = 'STARTING...';
+    await ensureMic();
+    const pre = takePreroll();
+    recChunks = pre.length ? [pre] : [];
+    recLen = pre.length; recClip = null;
+    micUser = recUser;
+    rec = true;
+    btn.classList.add('on');
+    btn.textContent = '■ STOP';
+    document.getElementById('preview-btn').disabled = true;
+    document.getElementById('send-btn').disabled = true;
+    status('recording...', 'ok');
+  } catch (e) {
+    btn.textContent = '● REC';
+    status(micError(e), 'err');
+  }
+}
+
+function finishRecord() {
+  if (!rec) return;
+  rec = false;
+  micUser = null;
+  micIdleLater();
+  const btn = document.getElementById('rec-btn');
+  btn.classList.remove('on');
+  btn.textContent = '● REC';
+  recClip = new Float32Array(recLen);
+  let o = 0;
+  for (const c of recChunks) { recClip.set(c, o); o += c.length; }
+  recChunks = [];
+  document.getElementById('rec-info').textContent = `${(recLen / OUT_RATE).toFixed(1)} s recorded`;
+  document.getElementById('preview-btn').disabled = recLen === 0;
+  document.getElementById('send-btn').disabled = recLen === 0;
+  status('recorded - listen or send');
+}
+
+function previewClip() {
+  if (!recClip || !recClip.length) return;
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const buf = ctx.createBuffer(1, recClip.length, OUT_RATE);
+  buf.getChannelData(0).set(recClip);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.connect(ctx.destination);
+  src.onended = () => ctx.close();
+  src.start();
+}
+
+async function sendRecording() {
+  if (!recClip || !recClip.length) return;
+  await sendPcm(recClip, 'recording');
+}
+
+async function sendPcm(f32, label) {
+  try {
+    status(`sending ${label}...`);
+    const j = await post('/voice/clip', toPcm16(f32).buffer, false);
+    status(`playing ${label} (${j.message})`, 'ok');
+  } catch (e) {
+    status(`couldn't play: ${e.message}`, 'err');
+  }
+}
+
+// ── FILE ────────────────────────────────────────────────────────────────────
+// The phone decodes whatever it can play, then OfflineAudioContext mixes to
+// mono and resamples to 16 kHz in one step.
+async function sendFile(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  try {
+    status(`decoding ${file.name}...`);
+    const bytes = await file.arrayBuffer();
+    const tmp = new (window.AudioContext || window.webkitAudioContext)();
+    const decoded = await new Promise((res, rej) => tmp.decodeAudioData(bytes, res, rej));
+    tmp.close();
+    const seconds = Math.min(decoded.duration, MAX_REC_SECONDS);
+    const off = new OfflineAudioContext(1, Math.ceil(seconds * OUT_RATE), OUT_RATE);
+    const src = off.createBufferSource();
+    src.buffer = decoded;
+    src.connect(off.destination);
+    src.start();
+    const rendered = await off.startRendering();
+    await sendPcm(rendered.getChannelData(0), file.name);
+  } catch (e) {
+    status(`couldn't read that file: ${(e && e.message) || 'unsupported format'}`, 'err');
+  }
+}
+
+// ── SAY / LEVEL / STOP ──────────────────────────────────────────────────────
+async function sayText() {
+  const text = document.getElementById('say-text').value.trim();
+  if (!text) return;
+  try {
+    await post('/voice/say', { text: text }, true);
+    status(`saying "${text}"`, 'ok');
+  } catch (e) {
+    status(`couldn't say it: ${e.message}`, 'err');
+  }
+}
+
+async function setLevel(v) {
+  try { await post('/voice/level', { level: Number(v) }, true); }
+  catch (e) { status(`level not set: ${e.message}`, 'err'); }
+}
+
+async function setPower(v) {
+  try { await post('/voice/level', { power: Number(v) / 100 }, true); }
+  catch (e) { status(`power limit not set: ${e.message}`, 'err'); }
+}
+
+async function setClarity(v) {
+  try { await post('/voice/level', { clarity: Number(v) }, true); }
+  catch (e) { status(`clarity not set: ${e.message}`, 'err'); }
+}
+
+async function setSmooth(v) {
+  try { await post('/voice/level', { smooth: Number(v) }, true); }
+  catch (e) { status(`smooth not set: ${e.message}`, 'err'); }
+}
+
+// 11m: tone-test switches (state comes back from /voice on every poll)
+const tone = { fixed62: false, dither: true };
+function paintTone() {
+  const f = document.getElementById('fixed62-btn'), d = document.getElementById('dither-btn');
+  f.textContent = '62 µs: ' + (tone.fixed62 ? 'ON' : 'OFF'); f.classList.toggle('on', tone.fixed62);
+  d.textContent = 'DITHER: ' + (tone.dither ? 'ON' : 'OFF'); d.classList.toggle('on', tone.dither);
+}
+async function toggleTone(name) {
+  tone[name] = !tone[name];
+  paintTone();
+  try {
+    const j = await post('/voice/level', { [name]: tone[name] }, true);
+    if (j && j.fixed62 !== undefined) { tone.fixed62 = j.fixed62; tone.dither = j.dither; paintTone(); }
+  } catch (e) { status(`${name} not set: ${e.message}`, 'err'); }
+}
+
+// 11c: sliders send WHILE you drag (at most every 150 ms), plus once on release,
+// so you hear the change on whatever is playing.
+const SLIDER_SEND = { level: setLevel, smooth: setSmooth, power: setPower, clarity: setClarity };
+const sliderTimers = {};
+const sliderLast = {};
+function sendNow(name, v) {
+  clearTimeout(sliderTimers[name]);
+  sliderTimers[name] = null;
+  sliderLast[name] = Date.now();
+  SLIDER_SEND[name](v);
+}
+function sendSoon(name, v) {
+  const wait = 150 - (Date.now() - (sliderLast[name] || 0));
+  if (wait <= 0) { sendNow(name, v); return; }
+  clearTimeout(sliderTimers[name]);
+  sliderTimers[name] = setTimeout(() => sendNow(name, v), wait);
+}
+
+async function stopAll() {
+  if (live) toggleLive();
+  try { await post('/voice/stop', {}, true); status('stopped'); }
+  catch (e) { status(e.message, 'err'); }
+}
+
+// ── STATUS ──────────────────────────────────────────────────────────────────
+async function pollVoice() {
+  try {
+    const r = await fetch('/voice');
+    const j = await r.json();
+    if (!j.available) { status('voice not available on this robot (needs pigpiod)', 'err'); return; }
+    const lv = document.getElementById('level');
+    if (document.activeElement !== lv) {
+      lv.value = j.level;
+      document.getElementById('level-val').textContent = Math.round(j.level);
+    }
+    const pw = document.getElementById('power');
+    if (document.activeElement !== pw && j.power !== undefined) {
+      pw.value = Math.round(j.power * 100);
+      document.getElementById('power-val').textContent = Math.round(j.power * 100);
+    }
+    lastDrive = j.drive || 0;
+    paintPower();
+    const cl = document.getElementById('clarity');
+    if (document.activeElement !== cl && j.clarity !== undefined) {
+      cl.value = j.clarity;
+      document.getElementById('clarity-val').textContent = Math.round(j.clarity);
+    }
+    const sm = document.getElementById('smooth');
+    if (document.activeElement !== sm && j.smooth !== undefined) {
+      sm.value = j.smooth;
+      document.getElementById('smooth-val').textContent = Math.round(j.smooth);
+    }
+    if (j.fixed62 !== undefined) { tone.fixed62 = j.fixed62; tone.dither = j.dither; paintTone(); }
+    // dropouts = audio arrived late over WiFi; underruns = the Pi couldn't keep up
+    document.getElementById('live-stats').textContent =
+      `buffer ${j.buffer_ms || 0} ms · dropouts ${j.dropouts || 0} (WiFi) · ` +
+      `underruns ${j.underruns || 0} (Pi) · late ${j.late_blocks || 0}` +
+      (j.work_ms ? ` · Pi work ${j.work_ms}/${j.work_ms_max} ms of 31` : '');
+    if (j.error) status('robot error: ' + j.error, 'err');
+  } catch (e) {}
+}
+// Battery, so you can watch the pack sag while the robot talks.
+let lastDrive = 0, lastBatt = null;
+function paintPower() {
+  const b = lastBatt == null ? '--' : lastBatt.toFixed(2) + ' V';
+  document.getElementById('power-stats').textContent =
+    `battery ${b} · drive ${Math.round(lastDrive * 100)}%`;
+}
+async function pollBattery() {
+  try {
+    const j = await (await fetch('/battery')).json();
+    lastBatt = (typeof j.voltage === 'number') ? j.voltage : null;
+    paintPower();
+  } catch (e) {}
+}
+pollBattery();
+setInterval(pollBattery, 2000);
+
+pollVoice();
+setInterval(() => { if (live || document.visibilityState === 'visible') pollVoice(); }, 700);
+
+if (!window.isSecureContext) {
+  status('Open this page as https://' + location.hostname + ':5443/talk for the mic. SAY and files still work here.', 'err');
+}
+</script>
+</body>
+</html>

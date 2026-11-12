@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ZeroBot Control</title>
+<style>
+  /* ── IMPORT FONT ── */
+  /* No webfont import. The robot is meant to work with no internet at all -
+     on a phone hotspot with cellular off, or once the Pi becomes its own
+     access point, fonts.googleapis.com is unreachable and the browser stalls
+     the render waiting for a request that can never succeed. These stacks are
+     built from fonts already on iOS, Android, Windows and the Pi. */
+
+  /* ── CSS VARIABLES ── */
+  :root {
+    --bg:        #0a0c0f;
+    --panel:     #111318;
+    --border:    #1e2530;
+    --accent:    #00e5ff;
+    --accent2:   #ff3d00;
+    --green:     #00e676;
+    --yellow:    #ffd600;
+    --text:      #c8d6e5;
+    --dim:       #4a5568;
+    --joystick-bg: #0d1117;
+    --joystick-ring: #1e2530;
+    --knob:      #00e5ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-monospace, 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,229,255,0.015) 2px,
+      rgba(0,229,255,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: 'Avenir Next Condensed', 'Roboto Condensed', 'Segoe UI', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(0,229,255,0.5);
+  }
+
+  .status-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 0.65rem;
+    color: var(--dim);
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--dim);
+    display: inline-block;
+    margin-right: 4px;
+  }
+  .status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── CAMERA FEED ── */
+  .camera-wrap {
+    flex: 1;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  #camera-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cam-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border: 1px solid rgba(0,229,255,0.08);
+  }
+
+  /* Corner brackets */
+  .cam-overlay::before, .cam-overlay::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: var(--accent);
+    border-style: solid;
+    opacity: 0.5;
+  }
+  .cam-overlay::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+  .cam-overlay::after  { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+  .no-camera {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--dim);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    gap: 8px;
+  }
+  .no-camera-icon { font-size: 2rem; opacity: 0.3; }
+
+  /* ── CONTROLS PANEL ── */
+  .controls {
+    flex-shrink: 0;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* ── TOP ROW: battery + headlight + speed ──
+     wrap rather than overflow: an extra control should push down to a second
+     line, never shove the speed slider off the edge of the screen. */
+  .top-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* Battery */
+  .battery-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.65rem;
+    color: var(--dim);
+    flex: 1;
+  }
+  .battery-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    max-width: 80px;
+  }
+  .battery-bar {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--green);
+    transition: width 1s, background 1s;
+    width: 0%;
+  }
+  .battery-bar.warn  { background: var(--yellow); }
+  .battery-bar.crit  { background: var(--accent2); }
+  #battery-text { min-width: 45px; }
+
+  /* Record button. Turns red and pulses while recording - it costs disk
+     and you should be able to tell at a glance that it is still running. */
+  #power-btn.armed { background: var(--red, #e53935); border-color: var(--red, #e53935); color: #fff; }
+  .rec-btn {
+    background: var(--border);
+    border: 1px solid var(--dim);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .rec-btn.on {
+    background: rgba(255,61,0,0.25);
+    border-color: var(--accent2);
+    color: #ffb59d;
+    animation: recpulse 1.6s infinite;
+  }
+  @keyframes recpulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
+  /* Two-row bar: a zero-height full-width item forces the line break, and
+     the driving sliders share the second row instead of one row each. */
+  .bar-break { flex-basis: 100%; height: 0; }
+  /* Buttons that float above the steering stick, centred on it. */
+  .joystick-wrap.wrap-h { position: relative; }
+  .stick-buttons {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 5;
+  }
+  .thumb-btn { padding: 8px 16px; font-size: 0.75rem; pointer-events: auto; }
+  /* keep the battery gauge readable now that row 1 holds four buttons */
+  .top-controls .battery-display { min-width: 95px; }
+  .top-controls .battery-bar-wrap { min-width: 36px; }
+  .top-controls .speed-wrap { flex: 1 1 0; min-width: 0; }
+  .top-controls input[type=range] { min-width: 44px; }
+  .top-controls .slider-val { min-width: 26px; }
+
+  /* Setup menu: a full-width row inside the bar, closed by default. In
+     landscape the bar is anchored at the bottom, so it opens upward. */
+  .gear-btn { font-size: 0.9rem; padding: 3px 9px; line-height: 1; }
+  .gear-btn.open  { border-color: var(--accent); color: var(--accent); }
+  .gear-btn.fault { border-color: var(--accent2); color: #ffb59d;
+                    background: rgba(255,61,0,0.25); }
+  .setup-panel {
+    display: none;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .setup-panel.open { display: flex; }
+  /* BAL: grey = off, green = on, red = switched itself off (tap for why). */
+  .bal-btn.on    { border-color: var(--green); color: var(--green); }
+  .bal-btn.fault { border-color: var(--accent2); color: #ffb59d;
+                   background: rgba(255,61,0,0.25); }
+  .rec-info {
+    font-size: 0.6rem;
+    color: var(--dim);
+    white-space: nowrap;
+    min-width: 64px;
+  }
+  .rec-info.live { color: var(--accent2); }
+
+  /* SD card meter. Fill = how full the card is. Green normally, red when
+     under 1GB or 10% free - roughly 8 minutes of HD recording left. */
+  .sd-meter {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.6rem; color: var(--dim); white-space: nowrap;
+  }
+  .sd-bar {
+    width: 36px; height: 6px; border: 1px solid var(--border);
+    border-radius: 3px; overflow: hidden; background: var(--panel);
+  }
+  .sd-fill { display: block; height: 100%; width: 0; background: var(--green); }
+
+  /* Headlight button */
+  .headlight-btn {
+    background: var(--border);
+    border: 1px solid var(--dim);
+    color: var(--dim);
+    font-family: ui-monospace, 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .headlight-btn.on {
+    border-color: var(--yellow);
+    color: var(--yellow);
+    background: rgba(255,214,0,0.08);
+    box-shadow: 0 0 8px rgba(255,214,0,0.2);
+  }
+
+  /* Speed slider */
+  .speed-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.65rem;
+    color: var(--dim);
+    flex: 1;
+  }
+  .speed-label { white-space: nowrap; }
+
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px rgba(0,229,255,0.5);
+    cursor: pointer;
+  }
+  .slider-val { min-width: 34px; text-align: right; color: var(--accent); }
+
+  /* HUE slider: the track IS the colour wheel, so no legend is needed.
+     Stops match the server: 0-360 = hue (92.3% of 390), 370+ = white. */
+  input[type=range].hue-slider {
+    height: 8px;
+    background: linear-gradient(to right,
+      #f00 0%, #ff0 15.4%, #0f0 30.8%, #0ff 46.2%, #00f 61.5%, #f0f 76.9%,
+      #f00 92.3%, #fff 94.9%, #fff 100%);
+  }
+  .hue-swatch {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1px solid var(--dim); background: #fff; flex: none;
+  }
+
+  /* ── JOYSTICK ROW ──
+     Two axis-locked sticks. Left = THROTTLE (vertical), right = STEERING
+     (horizontal). Splitting the axes means a thumb resting on full throttle
+     cannot leak steering input - which matters on a skid chassis that
+     amplifies heading error rather than damping it.
+
+     The BASE is shaped like its travel: a tall slot for throttle, a wide one
+     for steering. A round pad on a 1-D stick invites thumb movement along the
+     axis that is thrown away, which reads as a dead or sticky control. The JS
+     needs no change for this - updateStick() already measures travel from
+     getBoundingClientRect(), so the shape is purely a CSS decision. */
+  .joystick-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 10px;
+  }
+
+  .joystick-wrap { position: relative; }
+  .joystick-wrap.wrap-v { width: 76px;  height: 168px; }
+  .joystick-wrap.wrap-h { width: 168px; height: 76px;  }
+
+  .stick-base {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--joystick-bg);
+    border: 2px solid var(--joystick-ring);
+    position: relative;
+    touch-action: none;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,229,255,0.05);
+  }
+
+  /* Guide line - only along the live axis, so the stick reads as 1-D */
+  .stick-base::before {
+    content: '';
+    position: absolute;
+    background: rgba(0,229,255,0.10);
+  }
+  .stick-v::before { left: 50%; top: 10%; width: 1px; height: 80%; transform: translateX(-50%); }
+  .stick-h::before { top: 50%; left: 10%; height: 1px; width: 80%; transform: translateY(-50%); }
+
+  .stick-label {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    transform: translateX(-50%);
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: var(--dim);
+    pointer-events: none;
+    user-select: none;
+  }
+  /* On a 76px-tall horizontal slot there is no room above the knob, so the
+     steering label goes to the end of the slot instead of the top edge. */
+  .stick-h .stick-label {
+    bottom: auto; top: 50%; left: auto; right: 10px;
+    transform: translateY(-50%);
+  }
+  .stick-v .stick-label { bottom: 5px; }
+
+  .deadzone-ring {
+    position: absolute;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,229,255,0.1);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* Fixed px, NOT a percentage. A percentage of a 168x76 base would give an
+     ellipse that changes shape between the two sticks. */
+  .stick-knob {
+    position: absolute;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(0,229,255,0.3), var(--knob) 60%, rgba(0,150,180,0.8));
+    border: 2px solid rgba(0,229,255,0.6);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px rgba(0,229,255,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition: box-shadow 0.1s;
+    pointer-events: none;
+  }
+  .stick-knob.active {
+    box-shadow: 0 0 25px rgba(0,229,255,0.7), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+
+  /* ── TELEMETRY STRIP ── */
+  .telemetry {
+    display: flex;
+    gap: 16px;
+    font-size: 0.6rem;
+    color: var(--dim);
+    letter-spacing: 1px;
+    padding-top: 2px;
+    border-top: 1px solid var(--border);
+  }
+  .tele-val { color: var(--accent); }
+
+  /* ── VERSION CHIP ──
+     Normally a quiet grey stamp. It only shouts when the three reported
+     identities disagree, which is the case worth interrupting you for. */
+  .ver {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    color: var(--dim);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 5px;
+    white-space: nowrap;
+  }
+  .ver.warn { color: var(--yellow); border-color: var(--yellow); }
+  .ver.bad  { color: var(--accent2); border-color: var(--accent2);
+              background: rgba(255,61,0,0.10); }
+
+  /* ── LANDSCAPE ──
+     Driving orientation. The video goes edge to edge and everything else
+     floats on top of it.
+
+     object-fit switches to `contain` here deliberately. The sensor gives 4:3
+     and a phone in landscape is far wider than that, so `cover` would crop the
+     top and bottom off the frame - exactly the parts you steer by. `contain`
+     keeps the whole frame at full screen height and leaves black bars at the
+     sides, which is where the sticks then sit. Nothing useful is covered.
+
+     The controls layer is pointer-events:none so taps fall through to the
+     video; each interactive child turns pointer events back on. Without that
+     the invisible container would swallow the whole screen. */
+  @media (orientation: landscape) {
+
+    header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 20;
+      padding: 4px 12px;
+      background: linear-gradient(rgba(10,12,15,0.8), rgba(10,12,15,0));
+      border-bottom: none;
+      pointer-events: none;
+    }
+
+    .camera-wrap { position: absolute; inset: 0; }
+    #camera-feed { object-fit: contain; }
+
+    .controls {
+      position: absolute;
+      inset: 0;
+      z-index: 15;
+      background: none;
+      border-top: none;
+      padding: 0;
+      gap: 0;
+      pointer-events: none;
+    }
+
+    /* Battery / lights / speed: bottom centre, between the two sticks */
+    .top-controls {
+      position: absolute;
+      left: 50%;
+      bottom: 10px;
+      transform: translateX(-50%);
+      width: min(430px, calc(100vw - 330px));
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(10,12,15,0.55);
+      pointer-events: auto;
+    }
+
+    /* Setup strip: one row under the header, between the stick tops.
+       Scrolls sideways if it ever outgrows the screen, never wraps down
+       into the picture. */
+    .setup-panel {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: calc(100vw - 24px);
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 5px 10px;
+      border-top: none;
+      border-radius: 8px;
+      background: rgba(10,12,15,0.45);
+      pointer-events: auto;
+      z-index: 25;
+    }
+    .setup-panel .speed-wrap { flex: 0 0 auto; }
+    .setup-panel input[type=range] { width: 80px; flex: 0 0 80px; }
+    .setup-panel input[type=range].hue-slider { width: 90px; flex: 0 0 90px; }
+    .setup-panel .slider-val { min-width: 28px; }
+    .setup-panel .rec-btn { padding: 4px 8px; }
+    .setup-panel.open ~ .telemetry, .telemetry.under-setup { display: none; }
+
+    /* Telemetry sits just above that block */
+    .telemetry {
+      position: absolute;
+      left: 50%;
+      top: 30px;
+      bottom: auto;
+      transform: translateX(-50%);
+      border-top: none;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(10,12,15,0.45);
+      pointer-events: none;
+    }
+
+    /* Sticks pinned to the outer edges, vertically centred */
+    .joystick-row {
+      position: absolute;
+      inset: 0;
+      padding: 0 12px;
+      align-items: center;
+    }
+
+    /* Long axis gets the travel, short axis just needs to be thumb-wide. */
+    .joystick-wrap.wrap-v { width: 17vh; height: 44vh; max-width: 92px;  max-height: 215px; }
+    .joystick-wrap.wrap-h { width: 44vh; height: 17vh; max-width: 215px; max-height: 92px;  }
+
+    .stick-base {
+      background: rgba(13,17,23,0.45);
+      border-color: rgba(0,229,255,0.35);
+      pointer-events: auto;
+    }
+
+    .stick-knob {
+      width: 44px;
+      height: 44px;
+      opacity: 0.85;
+    }
+  }
+
+  /* Very short screens - keep the sticks clear of the centre block */
+  @media (orientation: landscape) and (max-height: 340px) {
+    .joystick-wrap.wrap-v { width: 15vh; height: 40vh; }
+    .joystick-wrap.wrap-h { width: 40vh; height: 15vh; }
+    .stick-knob { width: 38px; height: 38px; }
+    .telemetry { display: none; }
+    .top-controls { width: min(400px, calc(100vw - 300px)); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">ZEROBOT</div>
+  <div class="status-row">
+    <span class="ver" id="ver" title="build identity">v--</span>
+    <span><span class="status-dot live" id="conn-dot"></span><span id="conn-text">CONNECTED</span></span>
+  </div>
+</header>
+
+<!-- ── CAMERA ── -->
+<div class="camera-wrap">
+  <!-- Camera feed loads from the Pi's TCP stream via a proxy img tag -->
+  <!-- We use an img tag pointing to the mjpeg stream on port 8080 -->
+  <img id="camera-feed" alt="">
+  <div class="cam-overlay"></div>
+  <div class="no-camera" id="no-cam" style="display:none">
+    <div class="no-camera-icon">⬛</div>
+    <span>NO CAMERA SIGNAL</span>
+  </div>
+</div>
+
+<!-- ── CONTROLS ── -->
+<div class="controls">
+
+  <!-- Top row -->
+  <div class="top-controls">
+
+    <!-- Battery -->
+    <div class="battery-display">
+      <span>PWR</span>
+      <div class="battery-bar-wrap">
+        <div class="battery-bar" id="batt-bar"></div>
+      </div>
+      <span id="battery-text">--V</span>
+    </div>
+
+    <!-- Headlight -->
+    <button class="headlight-btn" id="headlight-btn" onclick="toggleHeadlight()"
+            title="headlights">💡</button>
+
+    <!-- Record -->
+    <button class="rec-btn" id="rec-btn" onclick="toggleRecord()">● REC</button>
+    <button class="rec-btn" id="photo-btn" onclick="takePhoto()">PHOTO</button>
+
+
+    <!-- Setup menu. Everything you set once or use occasionally lives here,
+         so the bar holds only what you touch while driving. The gear turns
+         red when BAL has switched itself off, so a fault is never hidden. -->
+    <button class="rec-btn gear-btn" id="gear-btn" onclick="toggleSetup()"
+            title="setup">&#9881;</button>
+
+    <!-- Row break: buttons above, the two driving sliders below. -->
+    <div class="bar-break"></div>
+    <!-- Brightness. 0 turns the light off, anything above turns it on, so
+         the slider always does something visible. -->
+    <div class="speed-wrap" id="lamp-wrap">
+      <span class="speed-label">LUM</span>
+      <input type="range" id="lamp-slider" min="0" max="100" value="100"
+             oninput="setLamp(this.value)">
+      <span id="lamp-val" class="slider-val">100</span>
+    </div>
+    <!-- Headlight colour (RGB kit). Left 92% of the travel is the colour
+         wheel; the far right end is white. Hidden if no RGB is fitted. -->
+    <div class="speed-wrap" id="hue-wrap" style="display:none">
+      <span class="speed-label">HUE</span>
+      <input type="range" id="hue-slider" class="hue-slider" min="0" max="390" value="370"
+             oninput="setHue(this.value)">
+      <span id="hue-swatch" class="hue-swatch"></span>
+    </div>
+    <!-- Speed -->
+    <div class="speed-wrap">
+      <span class="speed-label">SPD</span>
+      <input type="range" id="speed-slider" min="10" max="100" value="70"
+             oninput="setSpeed(this.value)">
+      <span id="speed-val" class="slider-val">70%</span>
+    </div>
+
+  </div>
+
+  <div class="setup-panel" id="setup-panel">
+  <!-- Steering sensitivity, 0.05-1.00 in hundredths. Was capped at 0.50
+       on the boosted motor rail; on bare battery (6 Nov 2026, Pi 3B+ /
+       Rev F carrier) it needs up to 1.00 to spin on the spot. -->
+  <div class="speed-wrap">
+    <span class="speed-label">STR</span>
+    <input type="range" id="turn-slider" min="5" max="100" value="100"
+           oninput="setTurn(this.value)">
+    <span id="turn-val" class="slider-val">1.00</span>
+  </div>
+
+  <!-- Steering trim. One bidirectional control, not two sliders: a robot
+       pulls ONE way, and asking which wheel to slow is a worse question
+       than asking which way it drifts. Negative slows the left wheel,
+       positive the right. Persists via /tune, so a kit robot is calibrated
+       once and stays calibrated. -->
+  <!-- Straight-line balance. Hidden on robots without encoders. Green =
+       on, grey = off, red = it switched itself off; tap it to see why. -->
+  <button class="rec-btn bal-btn" id="bal-btn" onclick="tapBalance()"
+          style="display:none" title="straight-line balance">BAL</button>
+
+  <div class="speed-wrap" id="trim-wrap">
+    <span class="speed-label" id="trim-label">TRM</span>
+    <input type="range" id="trim-slider" min="-25" max="25" value="0"
+           oninput="setTrim(this.value)">
+    <span id="trim-val" class="slider-val">0</span>
+  </div>
+
+  <!-- Focus. 11g: slider 0-1000 covers the lens's FULL range as reported by
+       /focus (min/max dioptres), on a squared scale so infinity..1 m gets ~4x
+       the travel a straight scale would give it (about a quarter on 0-15). The label shows distance. Hidden until /focus confirms the
+       sensor actually has a lens motor, so an OV5647 build shows nothing
+       rather than a control that silently does nothing. -->
+  <div class="speed-wrap" id="focus-wrap" style="display:none">
+    <span class="speed-label">FOC</span>
+    <input type="range" id="focus-slider" min="0" max="1000" value="183"
+           oninput="setFocus(this.value)">
+    <span id="focus-val" class="slider-val">2.0m</span>
+  </div>
+
+
+  <!-- Talk through the motors. Opens the HTTPS talk page (the phone only
+       lends a page its microphone over HTTPS). First visit: the phone warns
+       about the robot's home-made certificate - tap Advanced -> Proceed. -->
+  <button class="rec-btn" id="talk-btn" onclick="openTalk()" title="talk through the robot">TALK</button>
+
+  <!-- Clean power-off. Use before flipping the switch: cutting power right
+       after files are written leaves them EMPTY (11 Nov 2026). Two taps so a
+       stray touch can't turn the robot off. -->
+  <button class="rec-btn" id="power-btn" onclick="powerOff()" title="shut the Pi down safely">&#x23FB; OFF</button>
+
+  <!-- Hidden until /health says this camera has an HD mode. -->
+  <button class="rec-btn" id="hdrec-btn" onclick="toggleHdRecord()" style="display:none">HD REC</button>
+  <span class="rec-info" id="rec-info"><a href="#" onclick="openRecordings();return false;" style="color:inherit">FILES</a></span>
+  <span class="sd-meter" id="sd-meter" title="SD card space">
+    <span class="sd-bar"><span class="sd-fill" id="sd-fill"></span></span>
+    <span id="sd-text">SD --</span>
+  </span>
+  </div>
+
+
+
+  <!-- Sticks: LEFT = throttle (vertical), RIGHT = steering (horizontal).
+       Swapped 20 Sep 2026. Only the markup order moves - makeStick() binds by
+       id and each stick keeps its own axis, so no JS change was needed. -->
+  <div class="joystick-row">
+    <div class="joystick-wrap wrap-v">
+      <div class="stick-base stick-v" id="stick-throttle">
+        <div class="deadzone-ring"></div>
+        <div class="stick-knob"></div>
+        <div class="stick-label">THR</div>
+      </div>
+    </div>
+    <div class="joystick-wrap wrap-h">
+      <!-- Thumb buttons in the free space above the steering stick.
+           AF shows only on cameras with a lens motor. -->
+      <div class="stick-buttons">
+        <button class="rec-btn thumb-btn" id="af-btn" onclick="autoFocusOnce()"
+                style="display:none" title="autofocus once">AF</button>
+      </div>
+      <div class="stick-base stick-h" id="stick-steer">
+        <div class="deadzone-ring"></div>
+        <div class="stick-knob"></div>
+        <div class="stick-label">STR</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Telemetry strip -->
+  <div class="telemetry">
+    <span>L:<span class="tele-val" id="tele-l">0.00</span></span>
+    <span>R:<span class="tele-val" id="tele-r">0.00</span></span>
+    <span>X:<span class="tele-val" id="tele-x">0.00</span></span>
+    <span>Y:<span class="tele-val" id="tele-y">0.00</span></span>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// ZEROBOT CONTROL JAVASCRIPT
+// ═══════════════════════════════════════════════════════════
+
+// ── CONFIG ──────────────────────────────────────────────────
+const PI_IP = window.location.hostname;  // Auto-uses whatever IP you connected to
+
+// ── BUILD IDENTITY ───────────────────────────────────────────
+// Baked in by Flask when this page was rendered. Compared against the two
+// servers at runtime. Three sources, three distinct failures:
+//
+//   page != control   -> the phone is showing a CACHED page. Hard-refresh.
+//   control != stream -> the two report different builds outright.
+//   pids differ       -> TWO PROCESSES. The stream you are watching belongs
+//                        to the other one, so a fix to camera.py appears to
+//                        do nothing. This is the 6 Sep failure, and the pid
+//                        is the only thing that makes it visible.
+const PAGE_STAMP = "{{ version }}";
+
+let verControl = null, verStream = null, pidControl = null, pidStream = null;
+
+function paintVersion() {
+  const el = document.getElementById('ver');
+  const bits = [];
+  let cls = '';
+
+  if (verControl && PAGE_STAMP !== verControl) {
+    cls = 'warn';
+    bits.push('PAGE CACHED: page ' + PAGE_STAMP + ' vs server ' + verControl);
+  }
+  if (verControl && verStream && verControl !== verStream) {
+    cls = 'bad';
+    bits.push('BUILD SPLIT: control ' + verControl + ' vs stream ' + verStream);
+  }
+  if (pidControl && pidStream && pidControl !== pidStream) {
+    cls = 'bad';
+    bits.push('TWO PROCESSES: control pid ' + pidControl + ', stream pid ' + pidStream
+              + ' - the stream is being served by a stale instance');
+  }
+
+  el.className = 'ver' + (cls ? ' ' + cls : '');
+  if (cls === 'bad')       el.textContent = '\u26a0 MISMATCH';
+  else if (cls === 'warn') el.textContent = '\u26a0 ' + PAGE_STAMP;
+  else                     el.textContent = 'v' + (verControl || PAGE_STAMP);
+
+  el.title = bits.length ? bits.join('\n')
+           : 'page ' + PAGE_STAMP
+             + '\ncontrol ' + (verControl || '?') + ' pid ' + (pidControl || '?')
+             + '\nstream  ' + (verStream  || '?') + ' pid ' + (pidStream  || '?');
+  if (bits.length) console.warn('[version] ' + bits.join(' | '));
+}
+
+function pollVersion() {
+  fetch('http://' + PI_IP + ':5000/version?t=' + Date.now(), { cache: 'no-store' })
+    .then(r => r.json())
+    .then(v => { verControl = v.stamp; pidControl = v.pid; paintVersion(); })
+    .catch(() => {});
+}
+
+// Camera runs on its own port (8080), served straight from the hardware
+// encoder — Flask never touches frames. If the stream drops (server
+// restart, camera being fixed), retry every 3 seconds.
+(function () {
+  const feed  = document.getElementById('camera-feed');
+  const noCam = document.getElementById('no-cam');
+  const STALL_SECONDS = 8;     // must match camera.py
+  let reconnecting = false;
+
+  function showFeed(ok) {
+    feed.style.display  = ok ? 'block' : 'none';
+    noCam.style.display = ok ? 'none'  : 'flex';
+  }
+
+  function connectStream() {
+    reconnecting = false;
+    feed.src = 'http://' + PI_IP + ':8080/stream?t=' + Date.now();
+  }
+
+  function reconnect(why) {
+    if (reconnecting) return;          // don't stack retries
+    reconnecting = true;
+    showFeed(false);
+    console.log('[camera] reconnecting:', why);
+    feed.removeAttribute('src');
+    setTimeout(connectStream, 2000);
+  }
+
+  // A stream that errors outright fires this. A stream that merely freezes
+  // does not — that case is caught by the /health poll below.
+  feed.addEventListener('error', () => reconnect('error event'));
+  feed.addEventListener('load',  () => showFeed(true));
+
+  // Frozen-feed detection. An <img> holding an MJPEG connection stays
+  // "loaded" forever even when frames stop, so ask the server how old the
+  // last frame is instead of trusting the element.
+  setInterval(() => {
+    fetch('http://' + PI_IP + ':8080/health?t=' + Date.now(), { cache: 'no-store' })
+      .then(r => r.json())
+      .then(h => {
+        // /health already runs every 4s - take the stream's identity from it
+        // rather than adding another request to a single-core Pi.
+        if (h.stamp !== undefined) {
+          window.verStream = h.stamp; window.pidStream = h.pid;
+          verStream = h.stamp; pidStream = h.pid;
+          paintVersion();
+        }
+        if (h.age === null || h.age > STALL_SECONDS) reconnect('stale frames');
+        else if (!reconnecting) showFeed(true);
+      })
+      .catch(() => reconnect('health unreachable'));
+  }, 4000);
+
+  // Phones suspend background tabs; the stream is dead on return.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) reconnect('tab resumed');
+  });
+
+  connectStream();
+})();
+const SEND_INTERVAL_MS = 50;             // Send joystick data every 50ms (20x/sec)
+const DEADZONE = 0.08;                   // Ignore tiny joystick movements (0-1)
+
+// ── CONTROL ROTATION ─────────────────────────────────────────
+// 0 as of 8 Sep 2026. The earlier 270 was compensating for a reversed motor,
+// not a rotated stick - see INVERT_A in robot.py. Rule: "forward makes it
+// spin" is a motor polarity problem (INVERT_A/B); "steering reversed, forward
+// correct" is SWAP_MOTORS; only "the whole thing is sideways on a different
+// phone orientation" is a rotation, and that is what this value is for.
+const CONTROL_ROTATION = 0;
+
+function rotateStick(x, y) {
+  switch (CONTROL_ROTATION) {
+    case 90:  return { x: -y, y:  x };
+    case 180: return { x: -x, y: -y };
+    case 270: return { x:  y, y: -x };
+    default:  return { x,  y };
+  }
+}
+
+// ── STATE ───────────────────────────────────────────────────
+// joystickX / joystickY are the COMBINED command the send loop ships.
+// They are assembled from the two sticks in recompute() below.
+let joystickX = 0;   // -1.0 to 1.0  steering
+let joystickY = 0;   // -1.0 to 1.0  throttle
+let headlightOn = false;
+let sendLoop = null;
+let lastSentX = null;
+let lastSentY = null;
+
+// Knob travel is read from the element each time rather than hardcoded,
+// so the landscape layout can resize the sticks without the knob
+// sliding past its ring or stopping short of full deflection.
+
+// ── STICKS ──────────────────────────────────────────────────
+// Each stick tracks its OWN touch by identifier. The old code read
+// the first entry of e.touches - the first finger anywhere on the page. With two
+// sticks that makes the second stick jump to the first thumb's position.
+// changedTouches + identifier is the fix, and every handler below uses it.
+function makeStick(id, axis) {
+  return {
+    base: document.getElementById(id),
+    knob: document.querySelector('#' + id + ' .stick-knob'),
+    axis,            // 'x' (horizontal) or 'y' (vertical)
+    touchId: null,   // identifier of the touch that owns this stick
+    mouse: false,    // held by the mouse (PC testing)
+    value: 0,        // -1.0 .. 1.0 along its axis
+  };
+}
+const throttle = makeStick('stick-throttle', 'y');
+const steer    = makeStick('stick-steer',    'x');
+const sticks   = [throttle, steer];
+
+function stickHeld(s) { return s.touchId !== null || s.mouse; }
+function anyHeld()    { return sticks.some(stickHeld); }
+
+// Merge the two sticks into the x/y the server expects.
+function recompute() {
+  const rot = rotateStick(steer.value, throttle.value);
+  joystickX = rot.x;
+  joystickY = rot.y;
+  document.getElementById('tele-x').textContent = joystickX.toFixed(2);
+  document.getElementById('tele-y').textContent = joystickY.toFixed(2);
+}
+
+// Move one stick's knob along its axis and update its value.
+function updateStick(s, clientX, clientY) {
+  const rect = s.base.getBoundingClientRect();
+  const cx = rect.left + rect.width  / 2;
+  const cy = rect.top  + rect.height / 2;
+
+  const travel = ((s.axis === 'x') ? rect.width : rect.height) / 2;
+  let d = (s.axis === 'x') ? (clientX - cx) : (clientY - cy);
+  d = Math.max(-travel, Math.min(travel, d));
+
+  if (s.axis === 'x') {
+    s.knob.style.transform = `translate(calc(-50% + ${d}px), -50%)`;
+  } else {
+    s.knob.style.transform = `translate(-50%, calc(-50% + ${d}px))`;
+  }
+
+  let v = (s.axis === 'x') ? (d / travel) : (-d / travel);   // up = positive
+  if (Math.abs(v) < DEADZONE) v = 0;
+  s.value = v;
+  recompute();
+}
+
+function grabStick(s) {
+  s.knob.classList.add('active');
+  startSendLoop();
+}
+
+// Release one stick. If it was the last one held, stop the loop and
+// fire the triple stop - same runaway protection as before.
+function releaseStick(s) {
+  s.touchId = null;
+  s.mouse = false;
+  s.knob.classList.remove('active');
+  s.knob.style.transform = 'translate(-50%, -50%)';
+  s.value = 0;
+  recompute();
+  if (!anyHeld()) allReleased();
+}
+
+function allReleased() {
+  stopSendLoop();
+  joystickX = 0;
+  joystickY = 0;
+  sendMove(0, 0, true);  // Send stop immediately on release, never dropped
+
+  // Repeat the stop twice more. A single dropped packet on flaky wifi
+  // leaves the motors running with the knob centered on screen — this
+  // is the runaway failure mode, and three sends makes it very unlikely.
+  setTimeout(() => sendMove(0, 0, true), 60);
+  setTimeout(() => sendMove(0, 0, true), 160);
+}
+
+function releaseAll() {
+  const held = sticks.filter(stickHeld);
+  if (held.length === 0) return;
+  held.forEach(releaseStick);   // the last one triggers allReleased()
+}
+
+// ── TOUCH EVENTS ─────────────────────────────────────────────
+// Touch events fire on the element where the touch BEGAN, even after the
+// finger drifts outside it, so binding per-base is enough.
+for (const s of sticks) {
+  s.base.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+      if (s.touchId !== null) break;         // already owned by another finger
+      s.touchId = t.identifier;
+      grabStick(s);
+      updateStick(s, t.clientX, t.clientY);
+    }
+  }, { passive: false });
+
+  s.base.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    for (const t of e.changedTouches) {
+      if (t.identifier === s.touchId) updateStick(s, t.clientX, t.clientY);
+    }
+  }, { passive: false });
+
+  // touchcancel fires instead of touchend when the OS steals the touch —
+  // notification banner, edge swipe, app switch. Without it the stick
+  // stays "held" forever and no stop is ever sent.
+  for (const evt of ['touchend', 'touchcancel']) {
+    s.base.addEventListener(evt, (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) {
+        if (t.identifier === s.touchId) releaseStick(s);
+      }
+    }, { passive: false });
+  }
+
+  // Mouse support (for testing on PC) - one stick at a time, obviously
+  s.base.addEventListener('mousedown', (e) => {
+    s.mouse = true;
+    grabStick(s);
+    updateStick(s, e.clientX, e.clientY);
+  });
+}
+
+document.addEventListener('mousemove', (e) => {
+  for (const s of sticks) if (s.mouse) updateStick(s, e.clientX, e.clientY);
+});
+document.addEventListener('mouseup', () => {
+  for (const s of sticks) if (s.mouse) releaseStick(s);
+});
+
+// Page hidden or window unfocused: drop everything, send stop.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) releaseAll();
+});
+window.addEventListener('blur', releaseAll);
+
+// ── SEND LOOP ────────────────────────────────────────────────
+// Sends joystick position to Pi every 50ms while active.
+// Sends immediately on change, and re-sends the same value at least
+// every 250ms as a heartbeat. The server-side watchdog stops the motors
+// if it hears nothing for 0.6s — the heartbeat is what tells it
+// "still driving straight" apart from "phone fell off wifi".
+
+let lastSendTime = 0;
+
+function startSendLoop() {
+  if (sendLoop) return;
+  sendLoop = setInterval(() => {
+    const changed = (joystickX !== lastSentX || joystickY !== lastSentY);
+    const stale = (Date.now() - lastSendTime) >= 250;
+    if (changed || stale) {
+      sendMove(joystickX, joystickY);
+      lastSentX = joystickX;
+      lastSentY = joystickY;
+      lastSendTime = Date.now();
+    }
+  }, SEND_INTERVAL_MS);
+}
+
+function stopSendLoop() {
+  if (sendLoop) {
+    clearInterval(sendLoop);
+    sendLoop = null;
+  }
+}
+
+// ── HTTP COMMANDS ────────────────────────────────────────────
+// These send data to Flask endpoints on the Pi.
+// fetch() is non-blocking - it sends and forgets (we don't wait for reply).
+
+// One request at a time. Firing a fetch every 50ms without a guard lets them
+// queue on a slow link, and a release then lands behind a backlog of stale
+// turn commands - the robot keeps turning after your thumb is off the stick.
+// Dropping a tick costs nothing: the next one carries fresher data anyway.
+let moveInFlight = false;
+
+function sendMove(x, y, force) {
+  const stopping = (x === 0 && y === 0);
+  if (moveInFlight && !stopping && !force) return;   // never drop a stop
+  moveInFlight = true;
+  fetch(`http://${PI_IP}:5000/move`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ x, y })
+  })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById('tele-l').textContent = data.left?.toFixed(2) ?? '--';
+    document.getElementById('tele-r').textContent = data.right?.toFixed(2) ?? '--';
+  })
+  .catch(() => setDisconnected())
+  .finally(() => { moveInFlight = false; });
+}
+
+function toggleHeadlight() {
+  headlightOn = !headlightOn;
+  const btn = document.getElementById('headlight-btn');
+  btn.classList.toggle('on', headlightOn);
+
+  fetch(`http://${PI_IP}:5000/headlight`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ on: headlightOn })
+  })
+    .then(r => r.json())
+    .then(d => {                       // button may have restored a level
+      if (d && d.brightness !== undefined) {
+        document.getElementById('lamp-slider').value = d.brightness;
+        document.getElementById('lamp-val').textContent = d.brightness;
+      }
+    })
+    .catch(() => {});
+}
+
+// Brightness. Debounced: dragging fires oninput on every pixel, and each one
+// would be an HTTP round trip competing with the drive commands.
+let lampTimer = null;
+
+function setLamp(v) {
+  const pct = Number(v);
+  document.getElementById('lamp-val').textContent = pct;
+  headlightOn = pct > 0;
+  document.getElementById('headlight-btn').classList.toggle('on', headlightOn);
+  clearTimeout(lampTimer);
+  lampTimer = setTimeout(() => {
+    fetch(`http://${PI_IP}:5000/headlight`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brightness: pct })
+    }).catch(() => {});
+  }, 100);
+}
+
+// Colour. Same debounce as brightness. Moving it turns the light on.
+const HUE_WHITE = 370;
+let hueTimer = null;
+
+function hueCss(h) {
+  h = Number(h);
+  return h >= HUE_WHITE ? '#fff' : `hsl(${h % 360}, 100%, 50%)`;
+}
+
+function setHue(v) {
+  const h = Number(v);
+  document.getElementById('hue-swatch').style.background = hueCss(h);
+  headlightOn = true;
+  document.getElementById('headlight-btn').classList.toggle('on', true);
+  clearTimeout(hueTimer);
+  hueTimer = setTimeout(() => {
+    fetch(`http://${PI_IP}:5000/headlight`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hue: h })
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d && d.brightness !== undefined) {
+          document.getElementById('lamp-slider').value = d.brightness;
+          document.getElementById('lamp-val').textContent = d.brightness;
+        }
+      })
+      .catch(() => {});
+  }, 100);
+}
+
+// Start the sliders and button showing what the robot is actually doing.
+fetch(`http://${PI_IP}:5000/headlight`, { cache: 'no-store' })
+  .then(r => r.json())
+  .then(d => {
+    if (!d) return;
+    headlightOn = !!d.headlight;
+    document.getElementById('headlight-btn').classList.toggle('on', headlightOn);
+    if (d.brightness !== undefined) {
+      document.getElementById('lamp-slider').value = d.brightness;
+      document.getElementById('lamp-val').textContent = d.brightness;
+    }
+    if (d.rgb) {
+      document.getElementById('hue-wrap').style.display = '';
+      if (d.hue !== undefined) {
+        document.getElementById('hue-slider').value = d.hue;
+        document.getElementById('hue-swatch').style.background = hueCss(d.hue);
+      }
+    }
+  })
+  .catch(() => {});
+
+// Label updates on every tick of the slider, but the POST is debounced —
+// it fires 150ms after you stop moving. Dragging the slider was sending
+// ~20 requests/sec (visible in the server log), which on a single-core
+// Zero W competes with steering commands for CPU.
+let speedTimer = null;
+function setSpeed(val) {
+  document.getElementById('speed-val').textContent = val + '%';
+  clearTimeout(speedTimer);
+  speedTimer = setTimeout(() => {
+    fetch(`http://${PI_IP}:5000/speed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ speed: val / 100 })
+    }).catch(() => {});
+  }, 150);
+}
+
+// ── RECORDING ────────────────────────────────────────────────
+// Recording reuses the JPEG frames the stream is already producing, so it
+// costs no extra encoding - just disk. Endpoints live on the camera server
+// (:8080), not Flask, because that is where the frames are.
+//
+// Status is polled only while recording, and only every 2s, to keep this
+// from adding to the command traffic that competes with the video.
+
+let recording = false;
+let recTimer = null;
+
+// ── SD METER ─────────────────────────────────────────────────
+// Percentage is how FULL the card is. While recording it adds minutes left
+// at the current bitrate, counted down to the recorder's own stop threshold
+// (min_free_mb), because that is when the clip will actually end.
+function paintStorage(s) {
+  if (!s || !(s.total_mb > 0) || !(s.free_mb >= 0)) return;
+  const pct = Math.round((1 - s.free_mb / s.total_mb) * 100);
+  const low = s.free_mb < 1024 || s.free_mb / s.total_mb < 0.10;
+  const fill = document.getElementById('sd-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = low ? 'var(--accent2)' : 'var(--green)';
+  let txt = `SD ${pct}%`;
+  if (s.recording && s.bitrate > 0) {
+    const mbPerMin = s.bitrate / 8 / 1e6 * 60;
+    const mins = Math.max(0, Math.floor((s.free_mb - (s.min_free_mb || 0)) / mbPerMin));
+    txt += ` · ~${mins}m`;
+  }
+  document.getElementById('sd-text').textContent = txt;
+  document.getElementById('sd-meter').title =
+    `${(s.free_mb / 1024).toFixed(1)} GB free of ${(s.total_mb / 1024).toFixed(1)} GB`;
+}
+
+// Idle refresh. While recording, pollRec already repaints every 2s.
+setInterval(() => {
+  if (recording) return;
+  fetch(`http://${PI_IP}:8080/record/status`, { cache: 'no-store' })
+    .then(r => r.json()).then(paintStorage).catch(() => {});
+}, 30000);
+
+function paintRec(s) {
+  if (s) paintStorage(s);
+  recording = !!(s && s.recording);
+  const btn  = document.getElementById('rec-btn');
+  const info = document.getElementById('rec-info');
+  btn.classList.toggle('on', recording);
+  btn.textContent = recording ? '■ STOP' : '● REC';
+  // HD REC starts only. While any recording runs it is disabled, and lit if
+  // the running clip is HD; the main button stops either kind.
+  const hdb = document.getElementById('hdrec-btn');
+  if (hdb) {
+    hdb.disabled = recording;
+    hdb.classList.toggle('on', recording && !!s.hd);
+    hdb.textContent = (recording && s.hd) ? 'HD ●' : 'HD REC';
+  }
+  if (recording) {
+    const m = Math.floor(s.seconds / 60);
+    const sec = String(Math.floor(s.seconds % 60)).padStart(2, '0');
+    info.classList.add('live');
+    info.textContent = (s.hd ? 'HD · ' : '') + `${m}:${sec} · ${s.megabytes.toFixed(0)}MB`
+                     + (s.dropped > 0 ? ` · ${s.dropped} drop` : '');
+  } else {
+    info.classList.remove('live');
+    info.innerHTML = '<a href="#" onclick="openRecordings();return false;" style="color:inherit">FILES</a>';
+  }
+}
+
+function pollRec() {
+  fetch(`http://${PI_IP}:8080/record/status`, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(s => {
+      paintRec(s);
+      if (!s.recording) { clearInterval(recTimer); recTimer = null; }
+    })
+    .catch(() => {});
+}
+
+function toggleRecord() {
+  const url = recording ? '/record/stop' : '/record/start';
+  fetch(`http://${PI_IP}:8080${url}`, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(s => {
+      // A refused start is worth saying out loud - the usual reason is a
+      // full SD card, and silently doing nothing would look like a bug.
+      if (s.ok === false && s.message) {
+        document.getElementById('rec-info').textContent = String(s.message).slice(0, 28);
+      }
+      paintRec(s);
+      if (s.recording && !recTimer) recTimer = setInterval(pollRec, 2000);
+    })
+    .catch(() => {
+      document.getElementById('rec-info').textContent = 'no reply';
+    });
+}
+
+// HD start switches the sensor mode, so the video freezes for a few seconds
+// before recording begins - and again when it stops. The button says HOLD so
+// that gap reads as intended, not as a crash.
+function toggleHdRecord() {
+  if (recording) return;
+  const hdb = document.getElementById('hdrec-btn');
+  hdb.disabled = true;
+  hdb.textContent = 'HOLD…';
+  fetch(`http://${PI_IP}:8080/record/start?hd=1`, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(s => {
+      if (s.ok === false && s.message) {
+        document.getElementById('rec-info').textContent = String(s.message).slice(0, 28);
+      }
+      paintRec(s);
+      if (s.recording && !recTimer) recTimer = setInterval(pollRec, 2000);
+    })
+    .catch(() => {
+      document.getElementById('rec-info').textContent = 'no reply';
+      paintRec(null);
+    });
+}
+
+// Show HD REC only on a camera that has an HD mode.
+fetch(`http://${PI_IP}:8080/health`, { cache: 'no-store' })
+  .then(r => r.json())
+  .then(h => {
+    if (h && h.hd_available) document.getElementById('hdrec-btn').style.display = '';
+  })
+  .catch(() => {});
+
+// Two-tap power off: first tap arms it for 3 s, second tap shuts down.
+let powerArmTimer = null;
+function powerOff() {
+  const btn = document.getElementById('power-btn');
+  if (!btn.classList.contains('armed')) {
+    btn.classList.add('armed');
+    btn.textContent = 'TAP AGAIN';
+    powerArmTimer = setTimeout(() => {
+      btn.classList.remove('armed');
+      btn.innerHTML = '&#x23FB; OFF';
+    }, 3000);
+    return;
+  }
+  clearTimeout(powerArmTimer);
+  btn.textContent = 'OFF...';
+  fetch(`http://${PI_IP}:5000/shutdown`, { method: 'POST' })
+    .then(r => r.json())
+    .then(j => {
+      if (j.status === 'shutting down') {
+        btn.textContent = 'WAIT 20 s';
+        alertOff('Shutting down. When the green light on the Pi stops flashing (about 20 s), flip the switch.');
+      } else {
+        btn.classList.remove('armed');
+        btn.innerHTML = '&#x23FB; OFF';
+        alertOff('Not allowed to shut down: ' + j.status);
+      }
+    })
+    .catch(() => {
+      btn.textContent = 'WAIT 20 s';
+      alertOff('Shutting down (connection closed). Wait about 20 s before flipping the switch.');
+    });
+}
+function alertOff(msg) {
+  let el = document.getElementById('power-msg');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'power-msg';
+    el.style.cssText = 'position:fixed;left:10px;right:10px;bottom:10px;z-index:9999;padding:14px;' +
+      'border-radius:10px;background:#111318;border:1px solid #e53935;color:#fff;font:0.85rem monospace;text-align:center';
+    el.onclick = () => el.remove();
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+}
+
+function openTalk() {
+  window.open(`https://${PI_IP}:5443/talk`, '_blank');
+}
+
+function openRecordings() {
+  window.open(`http://${PI_IP}:8080/recordings`, '_blank');
+}
+
+// Pick up a recording already in progress - e.g. the page was reloaded, or
+// this is a second phone joining. Without this the button would show READY
+// while the robot is still writing to disk.
+pollRec();
+
+// ── STEERING SENSITIVITY ─────────────────────────────────────
+// Unlike SPD, this goes through /tune, so it persists in
+// ~/.zerobot_tune.json and survives restarts and redeploys. That file wins
+// over robot.py, which is the whole point - but it also means every POST is
+// a disk write, hence the debounce. The label tracks your finger; the write
+// happens 300ms after you stop.
+
+let turnTimer = null;
+function setTurn(val) {
+  const scale = val / 100;
+  document.getElementById('turn-val').textContent = scale.toFixed(2);
+  clearTimeout(turnTimer);
+  turnTimer = setTimeout(() => {
+    fetch(`http://${PI_IP}:5000/tune`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ turn_scale: scale })
+    }).catch(() => {});
+  }, 300);
+}
+
+// Read the live value at load rather than trusting the markup. The robot may
+// already be running a tuned value from ~/.zerobot_tune.json, and a slider
+// showing 0.12 while the machine steers at 0.24 is the same class of lie the
+// version chip exists to catch.
+(function initTurn() {
+  fetch(`http://${PI_IP}:5000/tune`, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => {
+      if (typeof d.turn_scale !== 'number') return;
+      const slider = document.getElementById('turn-slider');
+      const pos = Math.round(d.turn_scale * 100);
+      slider.value = Math.min(slider.max, Math.max(slider.min, pos));
+      document.getElementById('turn-val').textContent = d.turn_scale.toFixed(2);
+    })
+    .catch(() => {});
+})();
+
+// ── BATTERY POLLING ──────────────────────────────────────────
+// Checks battery voltage every 10 seconds
+
+function pollBattery() {
+  fetch(`http://${PI_IP}:5000/battery`)
+    .then(r => r.json())
+    .then(data => {
+      const bar  = document.getElementById('batt-bar');
+      const text = document.getElementById('battery-text');
+
+      if (data.voltage !== null) {
+        const pct = data.percent ?? 0;
+        bar.style.width = pct + '%';
+        bar.className = 'battery-bar' +
+          (pct < 20 ? ' crit' : pct < 40 ? ' warn' : '');
+        text.textContent = data.voltage.toFixed(1) + 'V';
+        // Battery guard: LOW at 3.45 V at rest, robot shuts itself down at 3.30 V.
+        if (data.low) {
+          text.textContent = 'LOW ' + data.voltage.toFixed(1) + 'V';
+          text.title = 'Charge soon - the robot shuts itself down at 3.30 V at rest';
+          bar.className = 'battery-bar crit';
+        }
+      } else {
+        // Show why, not just N/A - the reason is the whole diagnosis.
+        text.textContent = data.error ? 'ERR' : 'N/A';
+        text.title = data.error || 'no ADC';
+        bar.style.width = '0%';
+        if (data.error) console.warn('[battery]', data.error);
+      }
+    })
+    .catch(() => {});
+}
+
+// ── CONNECTION STATUS ─────────────────────────────────────────
+function setDisconnected() {
+  document.getElementById('conn-dot').classList.remove('live');
+  document.getElementById('conn-text').textContent = 'OFFLINE';
+}
+
+function checkConnection() {
+  fetch(`http://${PI_IP}:5000/battery`)
+    .then(() => {
+      document.getElementById('conn-dot').classList.add('live');
+      document.getElementById('conn-text').textContent = 'CONNECTED';
+    })
+    .catch(setDisconnected);
+}
+
+// ── START ─────────────────────────────────────────────────────
+pollBattery();
+pollVersion();
+paintVersion();
+// ── STEERING TRIM ────────────────────────────────────────────
+// Slider is percent. -8 means "slow the left wheel by 8%", which straightens
+// a robot that pulls right. Only ONE side is ever reduced - trimming both
+// would just make the robot slower for no gain.
+let trimTimer = null;
+
+function trimText(v) {
+  if (v === 0) return '0';
+  return (v < 0 ? 'L-' : 'R-') + Math.abs(v) + '%';
+}
+
+function setTrim(v) {
+  const pct = Number(v);
+  document.getElementById('trim-val').textContent = trimText(pct);
+  const left  = pct < 0 ? 1 + pct / 100 : 1.0;
+  const right = pct > 0 ? 1 - pct / 100 : 1.0;
+  clearTimeout(trimTimer);
+  trimTimer = setTimeout(() => {
+    fetch(`http://${PI_IP}:5000/tune`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // All three, every time. trim_left/right steer an open-loop robot
+      // (no encoders); balance_trim steers a closed-loop one. Whichever mode
+      // is running picks up its own value, so the slider always works.
+      body: JSON.stringify({ trim_left: Number(left.toFixed(3)),
+                             trim_right: Number(right.toFixed(3)),
+                             balance_trim: Number((pct / 100).toFixed(3)) })
+    }).catch(() => {});
+  }, 150);
+}
+
+// Show the saved trim, and warn if the closed-loop balance is on - with
+// encoders driving the wheels to equal speed, a static trim gets corrected
+// away, so the slider would appear to do nothing.
+fetch(`http://${PI_IP}:5000/tune`, { cache: 'no-store' })
+  .then(r => r.json())
+  .then(d => {
+    if (!d) return;
+    let v = 0;
+    if (d.balance_trim) v = Math.round(d.balance_trim * 100);
+    else if (d.trim_left < 1) v = -Math.round((1 - d.trim_left) * 100);
+    else if (d.trim_right < 1) v = Math.round((1 - d.trim_right) * 100);
+    document.getElementById('trim-slider').value = v;
+    document.getElementById('trim-val').textContent = trimText(v);
+  })
+  .catch(() => {});
+
+// ── PHOTO ────────────────────────────────────────────────────
+// Full-resolution still. This switches the sensor mode, so the video WILL
+// freeze for several seconds. The button says so while it waits - a silent
+// stall is indistinguishable from a crash, and this robot has a real history
+// of the camera dying, so guessing is expensive.
+let photoBusy = false;
+
+function takePhoto() {
+  if (photoBusy) return;
+  photoBusy = true;
+  const btn = document.getElementById('photo-btn');
+  btn.disabled = true;
+  btn.textContent = 'HOLD…';
+  fetch('/photo', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => { btn.textContent = d.error ? 'FAILED' : 'SAVED'; })
+    .catch(() => { btn.textContent = 'FAILED'; })
+    .finally(() => {
+      photoBusy = false;
+      btn.disabled = false;
+      setTimeout(() => { btn.textContent = 'PHOTO'; }, 2000);
+    });
+}
+
+// ── FOCUS ────────────────────────────────────────────────────
+// The slider carries dioptres x100; the server takes real dioptres.
+// Dragging fires oninput on every pixel and every one of those would be an
+// I2C write to the voice-coil driver, so the POST is debounced to the last
+// position the thumb rested on.
+let focusTimer = null;
+// Lens range in dioptres. Replaced by what /focus reports (11g); 0-15 is the
+// usual Camera Module 3 range, only used until that answer arrives.
+let lensMin = 0, lensMax = 15;
+
+// slider 0..1000 <-> dioptres, squared so the far end (0-1 dioptre =
+// infinity..1 m, where driving happens) gets ~4x the travel of a straight scale.
+function sliderToLens(v) {
+  const t = Number(v) / 1000;
+  return lensMin + (lensMax - lensMin) * t * t;
+}
+function lensToSlider(d) {
+  const t = (Number(d) - lensMin) / (lensMax - lensMin || 1);
+  return Math.round(1000 * Math.sqrt(Math.min(1, Math.max(0, t))));
+}
+// Dioptres -> a distance a person can read: 0.5 -> "2.0m", 4 -> "25cm".
+function lensLabel(d) {
+  d = Number(d);
+  if (d < 0.05) return '\u221e';               // infinity (beyond 20 m)
+  const m = 1 / d;
+  return m >= 1 ? m.toFixed(1) + 'm' : Math.round(m * 100) + 'cm';
+}
+
+function showLens(d) {
+  if (d === null || d === undefined || isNaN(d)) return;
+  document.getElementById('focus-slider').value = lensToSlider(d);
+  const el = document.getElementById('focus-val');
+  el.textContent = lensLabel(d);
+  el.title = Number(d).toFixed(2) + ' dioptres';
+  el.style.color = '';
+}
+
+function setFocus(v) {
+  const lens = Math.round(sliderToLens(v) * 100) / 100;
+  const el = document.getElementById('focus-val');
+  el.textContent = lensLabel(lens);
+  el.style.color = '';
+  clearTimeout(focusTimer);
+  focusTimer = setTimeout(() => {
+    fetch('/focus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lens: lens })
+    })
+      .then(r => r.json())
+      .then(d => {
+        // 11g: used to ignore the answer, so a failed move still LOOKED fine.
+        if (d && d.error) { el.textContent = 'err'; el.title = d.error; el.style.color = '#ff6b6b'; }
+        else if (d) showLens(d.lens);
+      })
+      .catch(() => { el.textContent = 'err'; el.title = 'robot did not answer'; el.style.color = '#ff6b6b'; });
+  }, 120);
+}
+
+// One sweep, then the server locks the lens back to Manual where it landed.
+// Deliberately NOT continuous AF - a hunting lens mid-drive is worse than a
+// slightly soft one.
+function autoFocusOnce() {
+  const btn = document.getElementById('af-btn');
+  btn.textContent = 'AF..';
+  btn.disabled = true;
+  fetch('/focus/auto', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+      showLens(d.lens);
+      btn.textContent = d.error ? 'AF x' : 'AF ok';
+    })
+    .catch(() => { btn.textContent = 'AF x'; })
+    .finally(() => {
+      btn.disabled = false;
+      setTimeout(() => { btn.textContent = 'AF'; }, 1500);
+    });
+}
+
+fetch('/focus')
+  .then(r => r.json())
+  .then(d => {
+    if (!d || !d.available) return;
+    if (typeof d.min === 'number' && typeof d.max === 'number' && d.max > d.min) {
+      lensMin = d.min; lensMax = d.max;
+    }
+    document.getElementById('focus-wrap').style.display = '';
+    document.getElementById('af-btn').style.display = '';
+    showLens(d.lens);
+  })
+  .catch(() => {});
+
+setInterval(pollVersion, 15000);
+setInterval(pollBattery, 10000);
+
+// ── BALANCE BUTTON ───────────────────────────────────────────
+// The robot checks its own encoders while you drive (see robot.py
+// SELF-CHECK). This button shows the result and is the only control a
+// member needs: tap to turn balance on/off, or after a fault, tap to read
+// why and fix it.
+function toggleSetup() {
+  const open = document.getElementById('setup-panel').classList.toggle('open');
+  document.getElementById('gear-btn').classList.toggle('open', open);
+  const tele = document.querySelector('.telemetry');
+  if (tele) tele.classList.toggle('under-setup', open);
+}
+
+let balState = null;
+function paintBalance(b) {
+  balState = b;
+  const btn = document.getElementById('bal-btn');
+  document.getElementById('gear-btn')
+    .classList.toggle('fault', !!b && b.state === 'fault');
+  if (!b || b.state === 'absent') { btn.style.display = 'none'; return; }
+  btn.style.display = '';
+  btn.classList.remove('on', 'fault');
+  if (b.state === 'fault') {
+    btn.classList.add('fault');
+    btn.textContent = 'BAL !';
+    btn.title = b.fault || 'balance switched itself off';
+  } else if (b.state === 'on') {
+    btn.classList.add('on');
+    btn.textContent = b.pairing === 'confirmed' ? 'BAL ✓' : 'BAL';
+    btn.title = b.pairing === 'confirmed'
+      ? 'balance on; encoders checked while driving'
+      : 'balance on; encoders get checked during your first few turns';
+  } else {
+    btn.textContent = 'BAL OFF';
+    btn.title = 'balance off; TRM steers on its own';
+  }
+}
+function pollBalance() {
+  fetch(`http://${PI_IP}:5000/balance`, { cache: 'no-store' })
+    .then(r => r.json()).then(paintBalance).catch(() => {});
+}
+function balPost(url, body) {
+  return fetch(`http://${PI_IP}:5000${url}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(() => pollBalance()).catch(() => {});
+}
+function tapBalance() {
+  const b = balState;
+  if (!b) return;
+  if (b.state === 'fault') {
+    if (b.fault_kind === 'crossed') {
+      if (confirm('The encoders look crossed (each one is reading the other ' +
+                  'wheel).\n\nSwap them? This is saved.'))
+        balPost('/balance/control', { action: 'swap' });
+    } else if (confirm('Balance switched itself off:\n' + b.fault +
+                       '\n\nTry again?')) {
+      balPost('/balance/control', { action: 'clear' });
+    }
+  } else {
+    balPost('/tune', { balance_enabled: b.state !== 'on' });
+  }
+}
+pollBalance();
+setInterval(pollBalance, 2500);
+setInterval(checkConnection, 3000);
+
+// Fix joystick size after fonts/layout settle
+window.addEventListener('resize', () => {
+  // Recalculate on orientation change
+  releaseAll();
+});
+</script>
+</body>
+</html>
