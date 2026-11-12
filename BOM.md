@@ -75,6 +75,10 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 
 | Qty | Part | Notes |
 |---|---|---|
+| 🟫 | M3 × 10 screw | Holds the shell parts together. 🟫 Count to be confirmed |
+| 🟫 | M3 nut | 🟫 Count and location to be confirmed |
+| 🟫 | M3 heat-set insert, about 4–5 mm long | In the battery lid. 🟫 Count to be confirmed |
+| 2 | Wheel screw (small self-tapping screw into the motor shaft) | 🟫 Size to be confirmed. TT-style motor wheels usually use one about 8–10 mm long. Check what came with your motors |
 | 4 | M2 self-tapping pan-head screw, 4–6 mm long (M2 × 4 on the original) | [Amazon](https://a.co/d/059v6QbO): HanTof 750-piece M1.7–M3 assortment | Mounts the carrier. They screw straight into the standoffs printed on the chassis deck, so no spacers needed. **Use M2, not M2.3:** the board's holes are 2.2 mm |
 | 1 set | Printed chassis, lid, wheels, rear skid, battery holder | Based on ZDV's ZeroBot Pro V1 ([Thingiverse 3232512](https://www.thingiverse.com/thing:3232512)). 🟫 Modified STL files to be added |
 

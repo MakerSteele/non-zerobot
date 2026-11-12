@@ -2,6 +2,8 @@
 
 Step-by-step hardware assembly: soldering the carrier board, wiring power, plugging in the modules, and the first drive.
 
+> 🚧 **IN PROGRESS: this guide hasn't been walked through on a real build yet, so expect changes.** If a step doesn't match what's in front of you, [open an issue](https://github.com/MakerSteele/non-zerobot/issues).
+>
 > ⚠️ **Status: written for the Rev G carrier board, which is still a draft.** The board files will be added to this repo once a Rev G board has been built and tested. Steps marked 🟫 **To be added** are still open.
 
 **You'll need:** soldering iron and solder, flush cutters, a multimeter, a small screwdriver, a phone with a web browser, a USB-C phone charger, and a micro-USB charger for setting up the Pi. Parts are in [BOM.md](BOM.md).

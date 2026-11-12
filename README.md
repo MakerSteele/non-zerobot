@@ -47,7 +47,7 @@ A carrier circuit board that ties all of this together is in progress and will b
 ## Getting started
 
 - 🧾 **[BOM.md](BOM.md)**: every part, with part numbers and a DigiKey order list
-- 🔧 **[ASSEMBLY.md](ASSEMBLY.md)**: build the robot step by step
+- 🔧 **[ASSEMBLY.md](ASSEMBLY.md)**: build the robot step by step (🚧 in progress, not yet tested on a real build)
 - 💾 **[INSTALL.md](INSTALL.md)**: install the software. No Linux experience needed
 - 📦 **[Releases](https://github.com/MakerSteele/non-zerobot/releases)**: download just the robot software (`zerobot.zip`)
 
