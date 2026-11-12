@@ -1,5 +1,7 @@
 # Installing the Non-Zerobot software
 
+This covers the software. Building the robot itself is in [ASSEMBLY.md](ASSEMBLY.md).
+
 About 20–30 minutes, most of it waiting. You need a computer, a microSD card (16 GB or larger), and your assembled robot.
 
 > **Tip:** every command below is one line. Copy it, paste it into the terminal, press Enter, and wait for it to finish before the next one.
@@ -9,7 +11,7 @@ About 20–30 minutes, most of it waiting. You need a computer, a microSD card (
 ## 1. Put Raspberry Pi OS on the card
 
 1. Install **Raspberry Pi Imager** from [raspberrypi.com/software](https://www.raspberrypi.com/software/).
-2. Choose your Pi model, then **Raspberry Pi OS (Trixie)**. The Lite version works fine.
+2. Choose your Pi model, then **Raspberry Pi OS (other) → Raspberry Pi OS Lite (32-bit)**. Use the 32-bit Lite version on every Pi: 64-bit won't start on a Pi Zero W, and the desktop is too heavy for the robot.
 3. When Imager offers to **edit settings**, say yes and fill in:
    - **Hostname** — e.g. `zerobot`
    - **Username and password** — anything you like. Write them down.
@@ -34,10 +36,10 @@ Type `yes` if it asks about a fingerprint, then your password.
 Paste this whole line:
 
 ```
-cd ~ && curl -L -o nzb.zip https://github.com/MakerSteele/non-zerobot/archive/refs/heads/main.zip && unzip -q nzb.zip && rm -rf ~/zerobot && cp -r non-zerobot-main/zerobot ~/zerobot && rm -rf nzb.zip non-zerobot-main && echo DOWNLOADED
+cd ~ && curl -L -o zerobot.zip https://github.com/MakerSteele/non-zerobot/releases/latest/download/zerobot.zip && rm -rf ~/zerobot && unzip -q zerobot.zip -d ~/zerobot && echo DOWNLOADED
 ```
 
-You should see `DOWNLOADED` at the end.
+You should see `DOWNLOADED` at the end. This gets the newest version from the [Releases page](https://github.com/MakerSteele/non-zerobot/releases).
 
 ## 4. Install it
 

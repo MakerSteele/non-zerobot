@@ -1,0 +1,19 @@
+Quantity,Manufacturer Part Number,Customer Reference,Description
+2,PPTC081LFBN-RC,Non-Zerobot motor driver sockets,Female header 1x8 2.54mm
+1,PPTC101LFBN-RC,Non-Zerobot battery sensor socket,Female header 1x10 2.54mm
+1,PPTC031LFBN-RC,Non-Zerobot motor boost socket,Female header 1x3 2.54mm
+1,PRPC010DAAN-RC,Non-Zerobot Pi link header,Male header 2x10 2.54mm
+1,PRPC040SAAN-RC,Non-Zerobot jumper and boost pins,Male header 1x40 breakaway (one strip covers ~5 robots)
+2,QPC02SXGN-RC,Non-Zerobot power jumpers,Jumper cap 2.54mm
+1,B2B-XH-A,Non-Zerobot battery plug,JST-XH 2-pin vertical
+2,B5B-XH-A,Non-Zerobot headlight sockets,JST-XH 5-pin vertical
+2,B6B-PH-K-S,Non-Zerobot motor sockets,JST-PH 6-pin vertical
+3,PN2222ATA,Non-Zerobot headlight transistors,NPN TO-92 (not P2N2222A)
+3,MFR-25FBF52-1K,Non-Zerobot 1k base resistors,1k 1/4W 1%
+1,MFR-25FBF52-270R,Non-Zerobot 270R red LED,270R 1/4W 1%
+2,MFR-25FBF52-180R,Non-Zerobot 180R green blue LED,180R 1/4W 1%
+2,MFR-25FBF52-10K,Non-Zerobot 10k divider,10k 1/4W 1%
+1,UVR0J471MED,Non-Zerobot 470uF battery cap,470uF 6.3V radial
+1,UVZ1C221MED,Non-Zerobot 220uF motor cap,220uF 16V radial
+1,FG18X7R1H104KNT06,Non-Zerobot 100nF filter,100nF 50V ceramic radial
+1,MF-RG400-0,Non-Zerobot battery fuse,PTC resettable fuse 4A hold

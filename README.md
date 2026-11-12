@@ -46,7 +46,10 @@ A carrier circuit board that ties all of this together is in progress and will b
 
 ## Getting started
 
-👉 **[INSTALL.md](INSTALL.md)** — set up the software step by step, no prior Linux experience needed.
+- 🧾 **[BOM.md](BOM.md)**: every part, with part numbers and a DigiKey order list
+- 🔧 **[ASSEMBLY.md](ASSEMBLY.md)**: build the robot step by step
+- 💾 **[INSTALL.md](INSTALL.md)**: install the software. No Linux experience needed
+- 📦 **[Releases](https://github.com/MakerSteele/non-zerobot/releases)**: download just the robot software (`zerobot.zip`)
 
 ## Wiring (GPIO, BCM numbering)
 
@@ -63,7 +66,8 @@ A carrier circuit board that ties all of this together is in progress and will b
 
 ```
 zerobot/     the robot software - this whole folder goes on the Pi as ~/zerobot
-docs/        pictures and extra documentation
+docs/bom/    DigiKey order list and a kit cost calculator
+docs/images/ photos
 ```
 
 ## License
