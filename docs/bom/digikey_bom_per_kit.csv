@@ -17,3 +17,4 @@ Quantity,Manufacturer Part Number,Customer Reference,Description
 1,UVZ1C221MED,Non-Zerobot 220uF motor cap,220uF 16V radial
 1,FG18X7R1H104KNT06,Non-Zerobot 100nF filter,100nF 50V ceramic radial
 1,MF-RG400-0,Non-Zerobot battery fuse,PTC resettable fuse 4A hold
+1,5497,Non-Zerobot battery lead,Adafruit JST-XH 2-pin extension 500mm (cut in half: 1 cable = 2 robots)

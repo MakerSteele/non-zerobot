@@ -66,7 +66,7 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 |---|---|---|---|
 | 2 | 10 mm RGB LED, **common anode**, clear | [Amazon](https://a.co/d/0aHCYMcc): Chanzon 50-pack | Long leg (common anode) goes to +. The bag lists red 2.0–2.2 V, green/blue 3.0–3.2 V at 20 mA |
 | 2 | JST-XH 5-pin pigtail, pre-crimped, 150 mm | [Amazon](https://a.co/d/09ycJAOr): ALAMSCN 20-pair kit | Solder the bare end to the LEDs. The kit also has matching board headers, so if you buy it you can skip the B5B-XH-A sockets on the DigiKey list |
-| 1 | JST-XH 2-pin pigtail, pre-crimped, single end | Any ([example search](https://www.amazon.com/s?k=JST+XH+2.5mm+2+pin+pre-crimped+cable+single+end)) | Battery lead, new for Rev G. **Check the red wire lands on +** |
+| ½ | JST-XH 2-pin extension cable, 500 mm (Adafruit 5497) | DigiKey [1528-5497-ND](https://www.digikey.com/en/products/detail/adafruit-industries-llc/5497/16680577) | Battery lead, new for Rev G. Cut it in half and keep the **socket** end: one cable makes leads for 2 robots. **Check the red wire lands on +** |
 | 20 | Dupont jumper wire, **female–female**, 2.54 mm, 20 cm | [Amazon](https://a.co/d/0dx3AREg): HiLetgo 200-piece assortment | Carrier to Pi link. The assortment has several kinds; use the female–female 2.54 mm strip |
 | ~1 m | Hookup wire, 20–22 AWG, red + black | Any. Silicone wire is easiest to work with | Switch and charger wiring |
 | — | Heatshrink | Any | |
@@ -75,7 +75,7 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 
 | Qty | Part | Notes |
 |---|---|---|
-| 4 | M2 × 8 nylon screw + 3–4 mm spacer | Any M2 nylon assortment ([example search](https://www.amazon.com/s?k=M2+nylon+standoff+screw+assortment)): mounts the carrier |
+| 4 | M2 self-tapping pan-head screw, about 6 mm long | [Amazon](https://a.co/d/059v6QbO): HanTof 750-piece M1.7–M3 assortment | Mounts the carrier. They screw straight into the standoffs printed on the chassis deck, so no spacers needed |
 | 1 set | Printed chassis, lid, wheels, rear skid, battery holder | Based on ZDV's ZeroBot Pro V1 ([Thingiverse 3232512](https://www.thingiverse.com/thing:3232512)). 🟫 Modified STL files to be added |
 
 ## Planned parts (not in the design yet)
