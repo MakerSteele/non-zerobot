@@ -716,6 +716,10 @@
   <!-- Talk through the motors. Opens the HTTPS talk page (the phone only
        lends a page its microphone over HTTPS). First visit: the phone warns
        about the robot's home-made certificate - tap Advanced -> Proceed. -->
+  <!-- Setup check (12 Nov 2026): one red/green list of everything a builder
+       can get wrong. Turns red here when any check fails. -->
+  <button class="rec-btn" id="check-btn" onclick="location.href='/setup'" title="check the robot's wiring and software">CHECK</button>
+
   <button class="rec-btn" id="talk-btn" onclick="openTalk()" title="talk through the robot">TALK</button>
 
   <!-- Clean power-off. Use before flipping the switch: cutting power right
@@ -1673,6 +1677,26 @@ fetch('/focus')
 
 setInterval(pollVersion, 15000);
 setInterval(pollBattery, 10000);
+
+// ── SETUP CHECK + START SPEED (12 Nov 2026) ─────────────────
+// The robot starts at 40% until its Setup check has passed once, so the SPD
+// slider asks the robot where it really is instead of assuming 70%.
+fetch(`http://${PI_IP}:5000/speed`).then(r => r.json()).then(j => {
+  const v = Math.round(j.speed * 100);
+  document.getElementById('speed-slider').value = v;
+  document.getElementById('speed-val').textContent = v + '%';
+}).catch(() => {});
+function pollSetup() {
+  fetch(`http://${PI_IP}:5000/setupcheck`).then(r => r.json()).then(j => {
+    const bad = j.items.some(i => i.state === 'fail');
+    const btn = document.getElementById('check-btn');
+    btn.style.borderColor = bad ? '#e04040' : '';
+    btn.style.color = bad ? '#ff9b9b' : '';
+    btn.textContent = bad ? 'CHECK !' : 'CHECK';
+  }).catch(() => {});
+}
+pollSetup();
+setInterval(pollSetup, 30000);
 
 // ── BALANCE BUTTON ───────────────────────────────────────────
 // The robot checks its own encoders while you drive (see robot.py

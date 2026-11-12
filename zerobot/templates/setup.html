@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup check - Non-Zerobot</title>
+<style>
+  body { margin: 0; background: #111; color: #eee; font-family: system-ui, sans-serif; font-size: 17px; }
+  main { max-width: 640px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.3rem; margin: 4px 0 4px; }
+  .sub { color: #aaa; font-size: 0.9rem; margin-bottom: 14px; }
+  .banner { border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-weight: 600; }
+  .banner.ok { background: #12351f; color: #7fe3a1; border: 1px solid #2f8f55; }
+  .banner.bad { background: #3a1616; color: #ff9b9b; border: 1px solid #a33; }
+  .banner.wait { background: #222; color: #ccc; border: 1px solid #444; }
+  .item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #2a2a2a; }
+  .dot { flex: 0 0 22px; height: 22px; border-radius: 50%; margin-top: 2px; }
+  .pass .dot { background: #2fbf5f; }
+  .fail .dot { background: #e04040; }
+  .warn .dot { background: #8a8a8a; border: 3px solid #e04040; box-sizing: border-box; }
+  .wait .dot { background: transparent; border: 3px solid #888; box-sizing: border-box; }
+  .label { font-weight: 600; }
+  .detail { color: #bbb; font-size: 0.9rem; }
+  .fix { margin-top: 6px; font-size: 0.95rem; color: #ffd0d0; }
+  .wait .fix, .warn .fix { color: #ddd; }
+  .tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: .05em; color: #888; margin-left: 6px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  button, a.btn { font: inherit; padding: 10px 16px; border-radius: 8px; border: 1px solid #555;
+                  background: #1e1e1e; color: #eee; text-decoration: none; cursor: pointer; }
+  button.armed { border-color: #e04040; color: #ff9b9b; }
+  #pairmsg { margin-top: 10px; color: #ccc; font-size: 0.95rem; min-height: 1.2em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Setup check</h1>
+  <div class="sub">Checks your robot's wiring and software. Updates every few seconds. Build {{ version }}</div>
+  <div id="banner" class="banner wait">Checking...</div>
+  <div id="list"></div>
+  <div class="actions">
+    <button id="pairbtn" onclick="pairCheck()">Run pair check (wheels turn)</button>
+    <a class="btn" href="/">Back to driving</a>
+  </div>
+  <div id="pairmsg"></div>
+</main>
+<script>
+const WORD = { pass: "OK", fail: "Fix this", warn: "Check", wait: "Waiting" };
+function esc(t) { const d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+
+function render(r) {
+  const b = document.getElementById('banner');
+  const fails = r.items.filter(i => i.state === 'fail').length;
+  const waits = r.items.filter(i => i.state === 'wait').length;
+  if (fails) { b.className = 'banner bad'; b.textContent = fails + (fails === 1 ? ' thing needs' : ' things need') + ' fixing. Start at the top.'; }
+  else if (waits) { b.className = 'banner wait'; b.textContent = 'Almost there: ' + waits + ' check' + (waits === 1 ? '' : 's') + ' waiting on the robot to do something.'; }
+  else { b.className = 'banner ok'; b.textContent = r.first_boot
+      ? 'All good! Your robot is set up. It starts at full normal speed from the next restart.'
+      : 'All good! Your robot is set up.'; }
+  document.getElementById('list').innerHTML = r.items.map(i =>
+    '<div class="item ' + esc(i.state) + '"><div class="dot"></div><div>' +
+    '<div class="label">' + esc(i.label) + '<span class="tag">' + WORD[i.state] + '</span></div>' +
+    '<div class="detail">' + esc(i.detail) + '</div>' +
+    (i.state !== 'pass' && i.fix ? '<div class="fix">' + esc(i.fix) + '</div>' : '') +
+    '</div></div>').join('');
+}
+
+function poll() {
+  fetch('/setupcheck').then(r => r.json()).then(render).catch(() => {
+    const b = document.getElementById('banner');
+    b.className = 'banner bad'; b.textContent = "Can't reach the robot. Is it still on the same WiFi?";
+  });
+}
+poll(); setInterval(poll, 3000);
+
+// Two taps, like the OFF button: the first arms it, the second runs it.
+let armed = null;
+function pairCheck() {
+  const btn = document.getElementById('pairbtn'), msg = document.getElementById('pairmsg');
+  if (!armed) {
+    btn.classList.add('armed'); btn.textContent = 'Wheels off the table? Tap again';
+    armed = setTimeout(() => { armed = null; btn.classList.remove('armed'); btn.textContent = 'Run pair check (wheels turn)'; }, 4000);
+    return;
+  }
+  clearTimeout(armed); armed = null;
+  btn.classList.remove('armed'); btn.textContent = 'Running...'; btn.disabled = true;
+  msg.textContent = 'Each wheel turns in turn for a moment.';
+  fetch('/paircheck').then(r => r.json()).then(j => {
+    msg.textContent = 'Pair check: ' + (j.verdict || j.error || JSON.stringify(j));
+  }).catch(e => { msg.textContent = 'Pair check failed: ' + e; })
+    .finally(() => { btn.disabled = false; btn.textContent = 'Run pair check (wheels turn)'; poll(); });
+}
+</script>
+</body>
+</html>

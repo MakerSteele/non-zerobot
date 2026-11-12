@@ -169,7 +169,12 @@ except Exception as e:
     print(f"               i2cdetect -y 1                     (expect 48)")
 
 # ─── SPEED (0.0 to 1.0) ───────────────────────────────────────────────────────
-current_speed = 0.7  # Default 70% speed
+# Gentle first boot (12 Nov 2026): until the Setup check has passed once on this
+# robot, start at 40% so a first test on the bench can't launch it off the table.
+# The flag file lives outside ~/zerobot, so reinstalls keep it.
+SETUP_OK_FILE = os.path.expanduser("~/.zerobot_setup_ok")
+FIRST_BOOT = not os.path.exists(SETUP_OK_FILE)
+current_speed = 0.4 if FIRST_BOOT else 0.7   # default 70% once setup has passed
 
 # ─── STRAIGHT-LINE BALANCE ────────────────────────────────────────────────────
 # Cheap TT gearmotors differ 10-20% in speed at the same PWM, so the robot
@@ -1026,10 +1031,13 @@ def rgb_set():
     _apply_lights()
     return jsonify({"status": "ok", "colour": name})
 
-@app.route("/speed", methods=["POST"])
+@app.route("/speed", methods=["GET", "POST"])
 def set_speed():
-    """Set motor speed multiplier (0.0 to 1.0)"""
+    """Set motor speed multiplier (0.0 to 1.0). GET reports it, so the page's
+    SPD slider can start where the robot really is (40% on a first boot)."""
     global current_speed
+    if request.method == "GET":
+        return jsonify({"speed": current_speed, "first_boot": FIRST_BOOT})
     data = request.get_json()
     current_speed = float(data.get("speed", 0.7))
     current_speed = max(0.1, min(1.0, current_speed))
@@ -1541,6 +1549,175 @@ def get_ip():
         return "0.0.0.0"
     finally:
         s.close()
+
+# ─── SETUP CHECK (12 Nov 2026) ───────────────────────────────────────────────
+# One red/green list of everything a builder can get wrong, in plain words.
+# The page is /setup; the data is /setupcheck. Each item: state is pass, warn,
+# fail or wait (needs the robot to do something first), with a "fix" line that
+# matches ASSEMBLY.md's Fix-it table. Read-only: it never moves the motors.
+
+def _sh(cmd, timeout=3):
+    """Run a short command, return (returncode, stdout). Never raises."""
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        return r.returncode, r.stdout.strip()
+    except Exception as e:
+        return -1, str(e)
+
+def _robot_processes():
+    """How many robot.py processes are running (should be exactly 1)."""
+    n = 0
+    for pid in os.listdir("/proc"):
+        if not pid.isdigit():
+            continue
+        try:
+            with open(f"/proc/{pid}/cmdline", "rb") as f:
+                cmd = f.read().replace(b"\0", b" ")
+        except Exception:
+            continue
+        if b"python" in cmd and b"robot.py" in cmd:
+            n += 1
+    return n
+
+def _item(id_, label, state, detail="", fix=""):
+    return {"id": id_, "label": label, "state": state, "detail": detail, "fix": fix}
+
+def setup_items():
+    items = []
+
+    # 1. Software: one copy running
+    n = _robot_processes()
+    if n <= 1:
+        items.append(_item("software", "Robot software", "pass", f"Build {STAMP}"))
+    else:
+        items.append(_item("software", "Robot software", "fail",
+                           f"{n} copies of robot.py are running",
+                           "Restart it: sudo systemctl restart zerobot (or reboot)."))
+
+    # 2. Battery sensor (ADS1115) answering
+    if ADC_AVAILABLE:
+        items.append(_item("adc", "Battery sensor (ADS1115)", "pass", "Found on I2C"))
+    else:
+        items.append(_item("adc", "Battery sensor (ADS1115)", "fail", str(ADC_ERROR),
+                           "Check it's seated with VDD at the VDD mark, and the Pi link wires on "
+                           "pins 1, 3 and 5. On a terminal, i2cdetect -y 1 should show 48."))
+
+    # 3. Battery voltage (1S Li-ion: 3.0-4.2 V)
+    if ADC_AVAILABLE:
+        try:
+            v = battery_channel.voltage * BATTERY_SCALE
+            if v > 4.35:
+                items.append(_item("battery", "Battery voltage", "fail", f"{v:.2f} V",
+                                   "Too high for one Li-ion cell. Switch off NOW: this robot is "
+                                   "1S (3.7 V) only. A 2-cell pack damages the boost and charger."))
+            elif v >= 3.4:
+                items.append(_item("battery", "Battery voltage", "pass", f"{v:.2f} V"))
+            elif v >= 3.0:
+                items.append(_item("battery", "Battery voltage", "warn", f"{v:.2f} V",
+                                   "Getting low. Charge it soon."))
+            else:
+                items.append(_item("battery", "Battery voltage", "fail", f"{v:.2f} V",
+                                   "Below 3.0 V. Charge the battery. If it stays near 0 V, a cell's "
+                                   "protection has tripped: find the short before charging."))
+        except Exception as e:
+            items.append(_item("battery", "Battery voltage", "fail", str(e),
+                               "The sensor stopped answering. Check its seating and wires."))
+    else:
+        items.append(_item("battery", "Battery voltage", "wait", "Needs the battery sensor first"))
+
+    # 4. Pi power supply (under-voltage flags)
+    rc, out = _sh(["vcgencmd", "get_throttled"])
+    if rc == 0 and "=" in out:
+        try:
+            flags = int(out.split("=")[1], 16)
+        except ValueError:
+            flags = None
+        if flags is None:
+            items.append(_item("power", "Pi power supply", "warn", out))
+        elif flags & 0x1:
+            items.append(_item("power", "Pi power supply", "fail", "Low voltage right now",
+                               "The Pi isn't getting enough power. Check the charger board's 5 V "
+                               "(4.9-5.25 V), charge the battery, and unplug the USB-C charger while testing."))
+        elif flags & 0x50000:
+            items.append(_item("power", "Pi power supply", "warn", "Low voltage happened since boot",
+                               "Usually a weak or nearly flat battery, or talking very loudly. "
+                               "Charge it and keep an eye on this."))
+        else:
+            items.append(_item("power", "Pi power supply", "pass", "No low-voltage events"))
+    else:
+        items.append(_item("power", "Pi power supply", "warn", "vcgencmd not available"))
+
+    # 5. Camera
+    try:
+        model = camera._cfg.get("_sensor")
+        age = camera._output.age()
+    except Exception:
+        model, age = None, None
+    if model and age is not None and age < 3:
+        items.append(_item("camera", "Camera", "pass", f"{model}, streaming"))
+    elif model:
+        items.append(_item("camera", "Camera", "warn", f"{model} found, no recent frames",
+                           "If the picture stays black, power off and reseat the ribbon. "
+                           "A camera that's found but gives no picture usually means a damaged ribbon."))
+    else:
+        items.append(_item("camera", "Camera", "fail", "No camera found",
+                           "Power off, then check the ribbon at both ends: contacts the right way, "
+                           "latches closed. Pi Zero boards need the 15-to-22 ribbon."))
+
+    # 6. Wheel encoders and pairing
+    if not ENCODERS_AVAILABLE:
+        items.append(_item("encoders", "Wheel speed sensors", "fail", "Not available",
+                           "The pigpio service may not be running: sudo systemctl status pigpiod. "
+                           "Then check both motor plugs are fully home."))
+    elif _bal_fault is not None:
+        items.append(_item("encoders", "Wheel speed sensors", "fail", str(_bal_fault),
+                           "Tap BAL on the control page to see why and retry. "
+                           "A silent sensor usually means a loose motor plug."))
+    elif _pair_state == "confirmed":
+        items.append(_item("encoders", "Wheel speed sensors", "pass",
+                           f"Both counting and on the right motors ({_enc_left_total} / {_enc_right_total} pulses)"))
+    elif _enc_left_total == 0 and _enc_right_total == 0:
+        items.append(_item("encoders", "Wheel speed sensors", "wait", "No pulses yet",
+                           "Drive forward a little, or run the pair check below (wheels off the table)."))
+    else:
+        items.append(_item("encoders", "Wheel speed sensors", "wait",
+                           f"Counting ({_enc_left_total} / {_enc_right_total} pulses), pairing not confirmed yet",
+                           "Drive in a few turns, or run the pair check below (wheels off the table)."))
+
+    # 7. Power-off permission (low-battery cutoff and the OFF button)
+    rc, _ = _sh(["sudo", "-n", "-l", "/usr/sbin/shutdown"])
+    if rc == 0:
+        items.append(_item("shutdown", "Safe power-off", "pass", "Allowed"))
+    else:
+        items.append(_item("shutdown", "Safe power-off", "warn", "Not allowed yet",
+                           "Low-battery cutoff and the OFF button won't work. Re-run the installer."))
+
+    # 8. Talk page certificate
+    tls = os.path.expanduser("~/.zerobot_tls")
+    if os.path.exists(os.path.join(tls, "cert.pem")):
+        items.append(_item("talk", "Talk page", "pass", "Certificate ready"))
+    else:
+        items.append(_item("talk", "Talk page", "warn", "No certificate yet",
+                           "Restart the robot once; the setup makes one."))
+    return items
+
+@app.route("/setup")
+def setup_page():
+    return render_template("setup.html", version=STAMP)
+
+@app.route("/setupcheck")
+def setupcheck():
+    items = setup_items()
+    ok = not any(i["state"] in ("fail", "wait") for i in items)
+    if ok and FIRST_BOOT and not os.path.exists(SETUP_OK_FILE):
+        try:
+            with open(SETUP_OK_FILE, "w") as f:
+                f.write(time.strftime("%Y-%m-%d %H:%M:%S") + " " + STAMP + "\n")
+            print("[OK] Setup check passed - normal 70% start speed from the next boot")
+        except Exception as e:
+            print(f"[WARN] Could not save the setup-passed flag ({e})")
+    return jsonify({"ok": ok, "items": items, "first_boot": FIRST_BOOT,
+                    "setup_ok_saved": os.path.exists(SETUP_OK_FILE), "stamp": STAMP})
 
 TLS_DIR = os.path.expanduser("~/.zerobot_tls")   # outside ~/zerobot: survives redeploys,
 HTTPS_PORT = 5443                                  # so the phone's "proceed anyway" sticks

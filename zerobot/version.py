@@ -9,6 +9,6 @@ BUMP `BUILD` EVERY TIME THE ZIP CHANGES. A version that does not move cannot
 tell you that the old code is still running, which is the entire point.
 """
 
-VERSION = "4.6"
-BUILD   = "2026-11-11m"
+VERSION = "4.7"
+BUILD   = "2026-11-12a"
 STAMP   = f"{VERSION}+{BUILD}"

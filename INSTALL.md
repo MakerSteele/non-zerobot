@@ -31,39 +31,21 @@ Type `yes` if it asks about a fingerprint, then your password.
 
 > **Can't connect?** Give it another minute and try again. If `zerobot.local` still isn't found, look up the robot's address in your phone hotspot's "connected devices" list and use that instead, e.g. `ssh yourname@192.168.1.50`.
 
-## 3. Download the software onto the robot
+## 3. Install the software
 
-Paste this whole line:
-
-```
-cd ~ && curl -L -o zerobot.zip https://github.com/MakerSteele/non-zerobot/releases/latest/download/zerobot.zip && rm -rf ~/zerobot && unzip -q zerobot.zip -d ~/zerobot && echo DOWNLOADED
-```
-
-You should see `DOWNLOADED` at the end. This gets the newest version from the [Releases page](https://github.com/MakerSteele/non-zerobot/releases).
-
-## 4. Install it
-
-Run these two, one at a time:
+Paste this one line and press Enter:
 
 ```
-sudo bash ~/zerobot/install-root-helper.sh
+curl -fsSL https://raw.githubusercontent.com/MakerSteele/non-zerobot/main/install.sh | bash
 ```
 
-```
-bash ~/zerobot/install-service.sh
-```
+It checks your Pi first (right OS, internet, enough space) and stops with a plain explanation if something's wrong. Then it asks for your password once, downloads the newest software from the [Releases page](https://github.com/MakerSteele/non-zerobot/releases), and installs everything. That takes several minutes, longer on a Pi Zero.
 
-The second one installs everything the robot needs, so it can take 10+ minutes on a Pi Zero. Let it finish.
+At the end it shows the robot's address **and a QR code**. Point your phone's camera at the QR code to open the control page. Then press Enter to restart the robot.
 
-When you're done, reboot:
+## 4. Drive!
 
-```
-sudo reboot
-```
-
-## 5. Drive!
-
-After about a minute, on your phone (same WiFi), open:
+After about a minute, scan the QR code from step 3, or open this on your phone (same WiFi):
 
 ```
 http://zerobot.local:5000
@@ -72,6 +54,7 @@ http://zerobot.local:5000
 (Or use the robot's address instead of `zerobot.local`.)
 
 **First things to try:**
+- Open the **⚙** menu and tap **CHECK**. It's a red/green list of everything that can be wired or set up wrong, with what to do for anything red. Keep it open while you drive a little and run its pair check, until everything's green. (Until it passes once, the robot starts at a gentle 40% speed.)
 - Drive forward a little. The **BAL** button changes to **BAL ✓** once the robot has confirmed each motor and encoder is wired the right way round. To run the check on purpose, open `http://zerobot.local:5000/paircheck`. The wheels will turn, so lift the robot first.
 - Tap **TALK** to make the robot speak. The first time, your phone warns about the certificate. Tap **Advanced → Proceed**. That's normal: the robot makes its own certificate so your phone's microphone can be used.
 
@@ -79,13 +62,7 @@ http://zerobot.local:5000
 
 ## Updating to a new version
 
-SSH in and run step 3 again, then:
-
-```
-sudo systemctl restart zerobot
-```
-
-Your tuning settings are stored outside the `zerobot` folder, so they survive updates.
+Run the same one line from step 3 again. Your tuning settings are stored outside the `zerobot` folder, so they're kept, and the previous version is saved in `~/zerobot.old`.
 
 ## Handy commands
 
