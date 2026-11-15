@@ -73,7 +73,6 @@ http://zerobot.local:5000
 
 **First things to try:**
 - Drive forward a little. The **BAL** button changes to **BAL ✓** once the robot has confirmed each motor and encoder is wired the right way round. To run the check on purpose, open `http://zerobot.local:5000/paircheck`. The wheels will turn, so lift the robot first.
-- Tap **TALK** to make the robot speak. The first time, your phone warns about the certificate. Tap **Advanced → Proceed**. That's normal: the robot makes its own certificate so your phone's microphone can be used.
 
 ---
 
