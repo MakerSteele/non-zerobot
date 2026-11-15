@@ -51,7 +51,7 @@ Set your multimeter to DC volts. Measure each 18650 cell: red probe on the raise
 > Use **protected** cells only. A protected cell has a tiny circuit that cuts it off on a short. If a cell suddenly reads near 0 V, the protection has tripped. Find the short before charging it again.
 
 ### 1.3 Get to know the carrier board
-Hold the carrier with the white printing up. The end with the two **headlight** sockets is the **front**. The **battery** plug and the **switch** pads are at the **rear**.
+Hold the carrier with the white printing up. The end with the two **headlight** sockets is the **front**. The **switch** pads are at the **rear**. The battery wires solder to two separate pads: **+ RED** near the rear and **− BLACK** near the front.
 
 These marks are used all through the build:
 - **+** next to a pad: the positive side
@@ -59,7 +59,7 @@ These marks are used all through the build:
 - **Square pads**: pin 1, or + on parts that have a + and −
 - **PARTS UP**, **IN** / **OUT**: which way a module or wire goes
 
-✅ **Done when:** you can point to the front, the rear, the battery plug, both motor sockets and the Pi link header (the 2-row block of 20 pins).
+✅ **Done when:** you can point to the front, the rear, both battery pads, both motor sockets and the Pi link header (the 2-row block of 20 pins).
 
 ---
 
@@ -138,10 +138,15 @@ The boost comes with its pin header already soldered on, so move it:
 
 ## 5. Power
 
-### 5.1 Check the battery lead
-Hold the battery lead's plug next to the carrier's battery plug, turned the only way it fits. The lead's **red** wire must line up with the **+** mark. Put the cells in the pack and measure the plug's contacts, red probe on the red wire's contact.
+### 5.1 Wire the battery
+The battery connects through an **XT30** plug pair in the wire. Nothing plugs into the board itself.
+1. **Battery side (female XT30):** solder its red wire to the pack's **+** end (the screw terminals at the rear) and its black wire to the **−** end (the spring terminals at the front).
+2. **Robot side (male XT30):** solder its **red** wire to the **+ RED** pad near the rear of the carrier, and its **black** wire to the **− BLACK** pad near the front. Run each wire straight to its own pad and through the strain-relief hole beside it.
+3. Put the cells in, plug the XT30s together, and measure across the two carrier pads: red probe on **+ RED**, black on **− BLACK**.
 
-🛑 **Stop and check:** the red wire is on the + side and the meter reads a **positive** voltage. These plugs have no colour standard, so check every lead. The fuse can't protect against reversed polarity.
+🛑 **Stop and check:** the meter reads a **positive** 3.0–4.2 V. A negative reading means red and black are swapped somewhere. Fix it before going on, because the fuse can't protect against reversed polarity.
+
+🛑 **1S only:** never plug a 2S or 3S RC pack into the XT30. Anything over 4.2 V destroys the motor boost and the charger board.
 
 ### 5.2 Wire the power switch
 The switch has two separate halves (poles). Four pads on the rear edge go to it:

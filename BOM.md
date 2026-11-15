@@ -6,6 +6,8 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 - **Amazon links** go to the exact listings used on the original robot. Parts marked "any" are generic, so anything matching the spec works.
 - **Planning several kits?** [`docs/bom/kit_bom_calculator.xlsx`](docs/bom/kit_bom_calculator.xlsx) works out packs and cost for any number of kits.
 
+> ⚠️ **1S only (one cell, or cells in parallel, 3.0–4.2 V).** The XT30 plug is the RC standard, so a 2S or 3S RC pack fits it. Plugging one in will destroy the motor boost, the charger board and possibly the Pi.
+>
 > ⚠️ Most of these parts go on the **Rev G carrier board**. Its files will be added once a Rev G board has been built and tested. Prices are rough 2026 US prices, so check before you order.
 
 ---
@@ -35,7 +37,8 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 | 1 | 18650 charger + boost board, USB-C (TP4056 type) | [Amazon](https://a.co/d/0flYN2TI): Teyleten Robot 10-pack | Charges the pack and powers the Pi. **Has an adjustment screw: set its output to about 5.1 V before it touches the Pi** (see [ASSEMBLY.md](ASSEMBLY.md) 5.3) |
 | 1 | Walfront 6 V boost converter (2-pack, ~$9) | [Amazon](https://a.co/d/09j4Al6v) | Motor power. Pick the **6 V, with pin** option (the only one listed). Its header has to be moved so the pins point down: see [ASSEMBLY.md](ASSEMBLY.md) 4.2 |
 | 1 | Mini rocker switch KCD1, **4-pin ON-OFF (two poles)**, VEXUNGA 10-pack | [Amazon](https://a.co/d/02PLmvfy) | Pick the "4 Pin ON/OFF" style. The listing title says SPST, but the 4-pin version switches two separate circuits, which is what the robot needs. Rated 10 A 250 V AC (no DC rating listed) |
-| 1 | Resettable fuse, 4 A hold | DigiKey [MF-RG400-0](https://www.digikey.com/en/products/result?keywords=MF-RG400-0) (Bourns) | Right after the battery plug |
+| 1 | Resettable fuse, 4 A hold | DigiKey [MF-RG400-0](https://www.digikey.com/en/products/result?keywords=MF-RG400-0) (Bourns) | Right after the battery + pad |
+| 1 pair | XT30 pigtail pair (one male, one female), 16–18 AWG silicone wire | [Amazon search](https://www.amazon.com/s?k=XT30+male+female+pigtail+16AWG) | Battery connector. It sits in the wire, not on the board. **Female on the battery side**, male on the robot side. 🟫 Exact listing to be added |
 
 ## Carrier board parts (all from DigiKey)
 
@@ -48,7 +51,6 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 | 1 | Male header 2×10, 2.54 mm | [PRPC010DAAN-RC](https://www.digikey.com/en/products/result?keywords=PRPC010DAAN-RC) | Pi link header |
 | 1 | Male header 1×40 breakaway (uses 7 pins) | [PRPC040SAAN-RC](https://www.digikey.com/en/products/result?keywords=PRPC040SAAN-RC) | Power jumpers + boost pins. One strip covers about 5 robots |
 | 2 | Jumper cap, 2.54 mm | [QPC02SXGN-RC](https://www.digikey.com/en/products/result?keywords=QPC02SXGN-RC) | Pi power and motor power jumpers |
-| 1 | JST-XH 2-pin vertical socket | [B2B-XH-A](https://www.digikey.com/en/products/result?keywords=B2B-XH-A) | Battery plug |
 | 2 | JST-XH 5-pin vertical socket | [B5B-XH-A](https://www.digikey.com/en/products/result?keywords=B5B-XH-A) | Headlight plugs |
 | 2 | JST-PH 6-pin vertical socket | [B6B-PH-K-S](https://www.digikey.com/en/products/result?keywords=B6B-PH-K-S) | Motor sockets |
 | 3 | PN2222A NPN transistor, TO-92 | [PN2222ATA](https://www.digikey.com/en/products/result?keywords=PN2222ATA) | Red, green, blue headlight switches. **Not P2N2222A** (different pin order) |
@@ -66,7 +68,6 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 |---|---|---|---|
 | 2 | 10 mm RGB LED, **common anode**, clear | [Amazon](https://a.co/d/0aHCYMcc): Chanzon 50-pack | Long leg (common anode) goes to +. The bag lists red 2.0–2.2 V, green/blue 3.0–3.2 V at 20 mA |
 | 2 | JST-XH 5-pin pigtail, pre-crimped, 150 mm | [Amazon](https://a.co/d/09ycJAOr): ALAMSCN 20-pair kit | Solder the bare end to the LEDs. The kit also has matching board headers, so if you buy it you can skip the B5B-XH-A sockets on the DigiKey list |
-| ½ | JST-XH 2-pin extension cable, 500 mm (Adafruit 5497) | DigiKey [1528-5497-ND](https://www.digikey.com/en/products/detail/adafruit-industries-llc/5497/16680577) | Battery lead, new for Rev G. Cut it in half and keep the **socket** end: one cable makes leads for 2 robots. **Check the red wire lands on +** |
 | 20 | Dupont jumper wire, **female–female**, 2.54 mm, 20 cm | [Amazon](https://a.co/d/0dx3AREg): HiLetgo 200-piece assortment | Carrier to Pi link. The assortment has several kinds; use the female–female 2.54 mm strip |
 | ~1 m | Hookup wire, 20–22 AWG, red + black | Any. Silicone wire is easiest to work with | Switch and charger wiring |
 | — | Heatshrink | Any | |

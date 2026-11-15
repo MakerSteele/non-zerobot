@@ -5,7 +5,6 @@ Quantity,Manufacturer Part Number,Customer Reference,Description
 1,PRPC010DAAN-RC,Non-Zerobot Pi link header,Male header 2x10 2.54mm
 1,PRPC040SAAN-RC,Non-Zerobot jumper and boost pins,Male header 1x40 breakaway (one strip covers ~5 robots)
 2,QPC02SXGN-RC,Non-Zerobot power jumpers,Jumper cap 2.54mm
-1,B2B-XH-A,Non-Zerobot battery plug,JST-XH 2-pin vertical
 2,B5B-XH-A,Non-Zerobot headlight sockets,JST-XH 5-pin vertical
 2,B6B-PH-K-S,Non-Zerobot motor sockets,JST-PH 6-pin vertical
 3,PN2222ATA,Non-Zerobot headlight transistors,NPN TO-92 (not P2N2222A)
@@ -17,4 +16,3 @@ Quantity,Manufacturer Part Number,Customer Reference,Description
 1,UVZ1C221MED,Non-Zerobot 220uF motor cap,220uF 16V radial
 1,FG18X7R1H104KNT06,Non-Zerobot 100nF filter,100nF 50V ceramic radial
 1,MF-RG400-0,Non-Zerobot battery fuse,PTC resettable fuse 4A hold
-1,5497,Non-Zerobot battery lead,Adafruit JST-XH 2-pin extension 500mm (cut in half: 1 cable = 2 robots)
