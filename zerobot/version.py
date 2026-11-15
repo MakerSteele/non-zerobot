@@ -10,5 +10,5 @@ tell you that the old code is still running, which is the entire point.
 """
 
 VERSION = "4.6"
-BUILD   = "2026-11-11m"
+BUILD   = "2026-11-15r"
 STAMP   = f"{VERSION}+{BUILD}"

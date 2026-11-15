@@ -476,8 +476,16 @@ except Exception as e:
 # voice.py turns audio into ~16 kHz PWM on the motor driver pins using pigpio
 # DMA waves. While voice.busy is True the pins belong to it: /move and /stop
 # step aside (see their first lines). Needs pigpiod, same as the encoders.
+# OFF by default (15 Nov 2026): the talking motors aren't part of the public
+# build yet. To turn them on for one robot:  touch ~/.zerobot_voice_on
+# then restart the service. The flag file sits outside ~/zerobot, so redeploys
+# keep it. Off = no voice.py, no TALK button, no /talk page, no HTTPS port.
+VOICE_FLAG = os.path.expanduser("~/.zerobot_voice_on")
+VOICE_ENABLED = os.path.exists(VOICE_FLAG)
 voice = None
-if GPIO_AVAILABLE and _pi is not None and _pi.connected:
+if not VOICE_ENABLED:
+    print(f"[INFO] Voice off (create {VOICE_FLAG} and restart to turn it on)")
+elif GPIO_AVAILABLE and _pi is not None and _pi.connected:
     try:
         import voice as _voice_mod
         def _voice_stop_motors():
@@ -725,7 +733,7 @@ def index():
     cached carries the OLD stamp while /version returns the live one. That
     disagreement is what tells you to hard-refresh instead of hunting a
     phantom bug in code the browser never loaded."""
-    return render_template("index.html", version=STAMP)
+    return render_template("index.html", version=STAMP, voice_enabled=VOICE_ENABLED)
 
 @app.route("/version")
 def version():
@@ -847,6 +855,8 @@ def _no_voice():
 
 @app.route("/talk")
 def talk_page():
+    if not VOICE_ENABLED:
+        return "Voice is turned off on this robot.", 404
     return render_template("talk.html", version=STAMP)
 
 @app.route("/voice", methods=["GET"])
@@ -1550,6 +1560,8 @@ def start_https(ip):
     The certificate is self-signed (setup.sh makes it), so the phone warns
     once - tap Advanced -> Proceed. Port 5000 stays plain HTTP and unchanged:
     the video on :8080 is HTTP, and an HTTPS page can't show it."""
+    if not VOICE_ENABLED:
+        return
     cert = os.path.join(TLS_DIR, "cert.pem")
     key = os.path.join(TLS_DIR, "key.pem")
     if not (os.path.exists(cert) and os.path.exists(key)):

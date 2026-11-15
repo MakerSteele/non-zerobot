@@ -716,7 +716,7 @@
   <!-- Talk through the motors. Opens the HTTPS talk page (the phone only
        lends a page its microphone over HTTPS). First visit: the phone warns
        about the robot's home-made certificate - tap Advanced -> Proceed. -->
-  <button class="rec-btn" id="talk-btn" onclick="openTalk()" title="talk through the robot">TALK</button>
+  {% if voice_enabled %}<button class="rec-btn" id="talk-btn" onclick="openTalk()" title="talk through the robot">TALK</button>{% endif %}
 
   <!-- Clean power-off. Use before flipping the switch: cutting power right
        after files are written leaves them EMPTY (11 Nov 2026). Two taps so a
