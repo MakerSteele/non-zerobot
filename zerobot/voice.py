@@ -84,7 +84,7 @@ CLIP_MAX_SECONDS = 60
 # The limiter keeps the AVERAGE drive (over ~0.1 s) at or below the budget.
 # Short peaks still get through, so speech stays clear; long loud stretches
 # are turned down.
-POWER_DEFAULT = 0.75         # fraction of full motor power, averaged. 11d: Steven picked 75% by ear
+POWER_DEFAULT = 0.75         # fraction of full motor power, averaged. 75% picked by ear
                              # (11 Nov). Not yet proven on a 30 s talk - drop it if the Pi browns out.
 LIM_ATTACK = 0.7             # per 6 ms block: reacts within ~10 ms
 LIM_RELEASE = 0.05           # per 6 ms block: lets go over ~0.1 s

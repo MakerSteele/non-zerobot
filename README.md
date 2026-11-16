@@ -8,6 +8,8 @@ It started life as a Raspberry Pi Zero robot — hence the name. Pi Zeros got ha
 
 > **Built on the shoulders of others.** This project is based on Max Kern's **ZeroBot** and **ZeroBot Pro**, and ZDV's **ZeroBot Pro V1** remix. See [CREDITS.md](CREDITS.md).
 
+> 🚧 **Work in progress.** The software works today. The carrier board files and printable parts will be added once the next board revision has been built and tested, so hold off on ordering parts for now.
+
 **Building one?** Go in this order: [parts list](BOM.md) → [assemble it](ASSEMBLY.md) → [install the software](INSTALL.md). Already have a robot? Jump straight to **[INSTALL.md](INSTALL.md)**.
 
 ---
