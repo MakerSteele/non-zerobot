@@ -37,7 +37,7 @@ Step-by-step hardware assembly: soldering the carrier board, wiring power, plugg
 ## 1. Get ready
 
 ### 1.1 Lay out your parts
-Spread everything on a clear, non-metal surface and tick each part off against [BOM.md](BOM.md). Keep the small parts in their bags until the step that uses them.
+Spread everything on a clear, non-metal surface and tick each part off against [BOM.md](BOM.md). The printed parts are listed in [models/README.md](models/README.md). Keep the small parts in their bags until the step that uses them.
 
 ✅ **Done when:** every part on the list is in front of you.
 
