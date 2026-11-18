@@ -8,7 +8,7 @@ It started life as a Raspberry Pi Zero robot — hence the name. Pi Zeros got ha
 
 > **Built on the shoulders of others.** This project is based on Max Kern's **ZeroBot** and **ZeroBot Pro**, and ZDV's **ZeroBot Pro V1** remix. See [CREDITS.md](CREDITS.md).
 
-> 🚧 **Work in progress.** The software works today. The carrier board files and printable parts will be added once the next board revision has been built and tested, so hold off on ordering parts for now.
+> 🚧 **Work in progress.** The software works today. The printable parts are in [`models/`](models/). The carrier board files will be added once the next board revision has been built and tested, so hold off on ordering parts for now.
 
 **Building one?** Go in this order: [parts list](BOM.md) → [assemble it](ASSEMBLY.md) → [install the software](INSTALL.md). Already have a robot? Jump straight to **[INSTALL.md](INSTALL.md)**.
 
@@ -72,12 +72,14 @@ A carrier circuit board that ties all of this together is in progress and will b
 zerobot/     the robot software - this whole folder goes on the Pi as ~/zerobot
 docs/bom/    DigiKey order list and a kit cost calculator
 docs/images/ photos
+models/      3D-printable parts (STL / 3MF)
 ```
 
 ## License
 
 - **Software** (everything in `zerobot/`): [GPL-3.0](LICENSE)
 - **Documentation and images**: [CC BY-SA 4.0](LICENSE-DOCS.md)
+- **3D models** (everything in `models/`): [CC BY-NC-SA 4.0](models/LICENSE.md) — non-commercial, because the chassis is a remix of ZDV's CC BY-NC-SA design
 
 Found a problem or have an idea? [Open an issue](https://github.com/MakerSteele/non-zerobot/issues).
 

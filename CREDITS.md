@@ -9,11 +9,17 @@ The original Raspberry Pi Zero FPV robot: the idea, the overall layout, and the 
 - Project: [hackaday.io/project/25092](https://hackaday.io/project/25092-zerobot-raspberry-pi-zero-fpv-robot)
 - Original code: [github.com/CoretechR/ZeroBot](https://github.com/CoretechR/ZeroBot) (GPL-3.0)
 
+## Wingman94 — ZeroBot Pro (Thingiverse)
+
+The ZeroBot Pro printed design that ZDV's remix is based on.
+
+- [Thingiverse thing:2800717](https://www.thingiverse.com/thing:2800717) (CC BY-SA)
+
 ## ZDV — ZeroBot Pro V1 remix
 
 The chassis this build is based on.
 
-- [Thingiverse thing:3232512](https://www.thingiverse.com/thing:3232512)
+- [Thingiverse thing:3232512](https://www.thingiverse.com/thing:3232512) (CC BY-NC-SA)
 
 ## franciscorp — ZeroBot "Off-Road" version
 
@@ -27,4 +33,4 @@ The headlight idea that Max Kern adopted into the ZeroBot Pro.
 
 The software in this repo is a new program written from scratch (Python and Flask). It is not a copy of the original Node.js code, but it is released under the same GPL-3.0 license in the spirit of the original.
 
-Any printed parts derived from the ZeroBot Pro / ZDV designs will be shared here under **CC BY-SA**, the same license as the originals, with the same credit.
+The printed parts in [`models/`](models/) are derived from the ZDV and Wingman94 designs. Because ZDV's design is **CC BY-NC-SA**, they are shared under the same license: [CC BY-NC-SA 4.0](models/LICENSE.md).
