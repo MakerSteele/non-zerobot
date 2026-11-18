@@ -72,7 +72,7 @@ A carrier circuit board that ties all of this together is in progress and will b
 zerobot/     the robot software - this whole folder goes on the Pi as ~/zerobot
 docs/bom/    DigiKey order list and a kit cost calculator
 docs/images/ photos
-models/      3D-printable parts (STL / 3MF)
+models/      3D-printable parts (STL)
 ```
 
 ## License
