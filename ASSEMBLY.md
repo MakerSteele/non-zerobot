@@ -303,12 +303,15 @@ Wheels still off the table. Push the **left stick** gently forward: both wheels 
 
 > Motor direction is already set in the software for this board, so a wheel turning backwards means a build fault, not a setting to change. If your phone loses WiFi mid-drive, the robot stops itself within about a third of a second.
 
-### 10.4 Check the speed sensors
+### 10.4 Run the Setup check
+Open the **⚙** menu and tap **CHECK**. Work down any red items; each one says what to look at. Everything green means the wiring is right. Until it passes once, the robot starts at a gentle 40% speed.
+
+### 10.5 Check the speed sensors
 Wheels off the table. Open `http://ROBOTNAME.local:5000/paircheck`. It runs each motor in turn and checks the right sensor counts.
 
 ✅ **Done when:** it says **CORRECT** and the **BAL** button is green.
 
-### 10.5 Focus and tune
+### 10.6 Focus and tune
 - **Focus:** on cameras without autofocus, aim at something with fine detail about 2 m away and turn the lens a few degrees at a time until it's sharp.
 - **Turning too sharply:** lower the **STR** slider. It's remembered after restarts.
 - **Drifting with BAL green:** usually a tyre or the skid. Move the **TRM** slider (negative slows the left wheel).

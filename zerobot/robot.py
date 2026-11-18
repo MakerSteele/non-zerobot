@@ -124,6 +124,9 @@ if GPIO_AVAILABLE:
     except Exception as e:
         rgb_leds = None
         print(f"[WARN] RGB headlight unavailable ({e})")
+        if "busy" in str(e).lower():
+            print("[WARN]   13l: the googlevoicehat mic overlay holds GPIO 16 - "
+                  "sudo bash ~/zerobot/setup-i2s-mic.sh && sudo reboot")
 
 # ─── BATTERY VOLTAGE (ADS1115) ────────────────────────────────────────────────
 # Required, not optional: the pack side is hard-wired, so the boost and the
@@ -169,7 +172,12 @@ except Exception as e:
     print(f"               i2cdetect -y 1                     (expect 48)")
 
 # ─── SPEED (0.0 to 1.0) ───────────────────────────────────────────────────────
-current_speed = 0.7  # Default 70% speed
+# Gentle first boot (12 Nov 2026): until the Setup check has passed once on this
+# robot, start at 40% so a first test on the bench can't launch it off the table.
+# The flag file lives outside ~/zerobot, so reinstalls keep it.
+SETUP_OK_FILE = os.path.expanduser("~/.zerobot_setup_ok")
+FIRST_BOOT = not os.path.exists(SETUP_OK_FILE)
+current_speed = 0.4 if FIRST_BOOT else 0.7   # default 70% once setup has passed
 
 # ─── STRAIGHT-LINE BALANCE ────────────────────────────────────────────────────
 # Cheap TT gearmotors differ 10-20% in speed at the same PWM, so the robot
@@ -398,6 +406,9 @@ import threading
 # The browser sends every 50ms, so 0.35s is seven missed sends - a real
 # dropout, not jitter - while cutting the worst-case runaway roughly in half.
 WATCHDOG_TIMEOUT = 0.35
+# 13q: a link that adds internet lag (the optional remote add-on) can ask for a
+# longer cutoff; each /move sets the timeout for its own link (link_timeout()).
+_cmd_timeout = WATCHDOG_TIMEOUT
 last_command_time = time.monotonic()
 motors_active = False
 
@@ -405,9 +416,12 @@ def watchdog():
     global motors_active
     while True:
         time.sleep(0.1)
-        if motors_active and (time.monotonic() - last_command_time) > WATCHDOG_TIMEOUT:
-            if GPIO_AVAILABLE:
-                motor_left.stop()
+        if motors_active and (time.monotonic() - last_command_time) > _cmd_timeout:
+            _v = globals().get("voice")
+            if _v is not None:
+                _v.set_drive(0.0, 0.0)      # 13b: also stops driving-while-talking
+            if GPIO_AVAILABLE and not (_v is not None and _v.busy):
+                motor_left.stop()           # never touch the pins mid-speech
                 motor_right.stop()
             motors_active = False
             print("[WATCHDOG] Command silence - motors stopped")
@@ -476,16 +490,8 @@ except Exception as e:
 # voice.py turns audio into ~16 kHz PWM on the motor driver pins using pigpio
 # DMA waves. While voice.busy is True the pins belong to it: /move and /stop
 # step aside (see their first lines). Needs pigpiod, same as the encoders.
-# OFF by default (15 Nov 2026): the talking motors aren't part of the public
-# build yet. To turn them on for one robot:  touch ~/.zerobot_voice_on
-# then restart the service. The flag file sits outside ~/zerobot, so redeploys
-# keep it. Off = no voice.py, no TALK button, no /talk page, no HTTPS port.
-VOICE_FLAG = os.path.expanduser("~/.zerobot_voice_on")
-VOICE_ENABLED = os.path.exists(VOICE_FLAG)
 voice = None
-if not VOICE_ENABLED:
-    print(f"[INFO] Voice off (create {VOICE_FLAG} and restart to turn it on)")
-elif GPIO_AVAILABLE and _pi is not None and _pi.connected:
+if GPIO_AVAILABLE and _pi is not None and _pi.connected:
     try:
         import voice as _voice_mod
         def _voice_stop_motors():
@@ -500,6 +506,59 @@ elif GPIO_AVAILABLE and _pi is not None and _pi.connected:
     except Exception as e:
         voice = None
         print(f"[WARN] Voice unavailable ({e})")
+
+# ─── MIC (robot -> phone, 13f) ───────────────────────────────────────────────
+# 13k: SPH0645 I2S mic (preferred) or MAX4466 -> XIAO SAMD21 -> UART (fallback).
+# MAX4466 mic -> XIAO SAMD21 ADC -> UART 1 Mbaud -> /dev/serial0. mic_live.py
+# cleans it (same filters as mic_pi_test.py v9) and streams 16 kHz PCM to the
+# LISTEN button on the talk page. The port is only open while someone listens.
+# Muted while the robot talks through its motors, so it never hears itself.
+# 13j: ONE build for every robot. At start-up (and every 30 s until found)
+# mic_live.probe() listens on the UART for a XIAO; no mic = LISTEN hidden.
+# Force with ~/.zerobot_mic containing "on" or "off".
+mic = None
+try:
+    import mic_live as _mic_mod
+    mic = _mic_mod.MicLive(is_muted=lambda: voice is not None and voice.busy)
+    mic.present = False
+    mic.reason = "checking for the mic"
+    if voice is not None:
+        voice.before_audio = mic.pause_for_voice    # 13k: I2S mic hands the PCM block back
+    # 13k: if the service died while the I2S mic had pigpio's PCM settings
+    # cleared, the voice would hang - put them back now (no-op otherwise).
+    if os.path.exists("/run/zerobot-pcm.json"):
+        _ok, _msg = _mic_mod._pcm("restore")
+        print(f"[{'OK' if _ok else 'WARN'}] Mic: leftover pigpio hand-over restored ({_msg})", flush=True)
+
+    def _mic_probe_loop():
+        time.sleep(3)                       # let the XIAO finish booting
+        while True:
+            if not mic.running:
+                ok, why, src = _mic_mod.probe()
+                mic.present, mic.reason = ok, why
+                if src:
+                    mic.source = src
+                print(f"[{'OK' if ok else 'INFO'}] Mic: {why}", flush=True)
+                if ok or "Pi Zero W" in why or "~/.zerobot_mic" in why or "not the main UART" in why \
+                        or "console" in why:
+                    return                  # found, or this robot can't have one: stop looking
+            time.sleep(30)
+    threading.Thread(target=_mic_probe_loop, daemon=True).start()
+except Exception as e:
+    mic = None
+    print(f"[WARN] Mic unavailable ({e})")
+
+def _voice_drive(left, right):
+    """13b: give voice.py the joystick drive, so the robot keeps moving while
+    it talks. voice.py works in RAW driver channels (A = GPIO 17/27, B =
+    22/23, + = the first pin), so undo SWAP_MOTORS and INVERT_A/B here - the
+    same mapping gpiozero's Motor objects use. Same 0.05 dead zone as /move."""
+    if voice is None:
+        return
+    left = 0.0 if abs(left) <= 0.05 else left
+    right = 0.0 if abs(right) <= 0.05 else right
+    a, b = (right, left) if SWAP_MOTORS else (left, right)
+    voice.set_drive(-a if INVERT_A else a, -b if INVERT_B else b)
 
 
 def _set_fault(kind, reason, reset_seed=False):
@@ -718,12 +777,123 @@ import camera
 # ─── FLASK APP ────────────────────────────────────────────────────────────────
 app = Flask(__name__)
 
+# ─── OPTIONAL ADD-ONS (13q) ───────────────────────────────────────────────────
+# Personal extras live in ~/zerobot_addons, OUTSIDE ~/zerobot: deploys don't
+# touch them, and kit robots simply don't have the folder. Each add-on is a
+# module with attach(app) / start() / stop(). Missing folder = feature absent.
+ADDON_DIR = os.path.expanduser("~/zerobot_addons")
+if os.path.isdir(ADDON_DIR) and ADDON_DIR not in sys.path:
+    sys.path.insert(0, ADDON_DIR)
+try:
+    import remote as remote_addon          # optional remote-access add-on
+    remote_addon.attach(app)
+    print(f"[OK] Add-on: remote access ({remote_addon.__file__})")
+except ImportError:
+    remote_addon = None
+except Exception as e:
+    remote_addon = None
+    print(f"[WARN] Remote add-on failed to load ({e}) - carrying on without it")
+
+def is_remote():
+    """True when this request came over the remote add-on's internet link."""
+    return remote_addon is not None and remote_addon.is_remote(request)
+
+def link_timeout():
+    return remote_addon.WATCHDOG_TIMEOUT if is_remote() else WATCHDOG_TIMEOUT
+
+@app.route("/cam/frame")
+def cam_frame():
+    """One JPEG, the next one the camera makes. The remote page asks for a
+    frame only after the last one arrived, so at most one frame is ever in
+    flight and the picture can't fall seconds behind on a slow link."""
+    out = camera._output
+    with out.condition:
+        out.condition.wait(timeout=1.0)
+        frame = out.frame
+    if frame is None or out.age() > 3:
+        return jsonify({"ok": False, "message": "no recent frame"}), 503
+    return Response(frame, content_type="image/jpeg",
+                    headers={"Cache-Control": "no-store"})
+
+@app.route("/recordings")
+@app.route("/recordings/<path:name>")
+def recordings_relay(name=None):
+    """The recordings page (camera.py, :8080) for HTTPS and remote pages. Its
+    links are /recordings/..., so serving it at the same path keeps them working.
+    Range is passed through so videos can seek."""
+    import http.client
+    path = "/recordings" + ("/" + name if name else "")
+    qs = request.query_string.decode("latin-1")
+    hdrs = {"Range": request.headers["Range"]} if "Range" in request.headers else {}
+    conn = http.client.HTTPConnection("127.0.0.1", 8080, timeout=15)
+    try:
+        conn.request("GET", path + ("?" + qs if qs else ""), headers=hdrs)
+        r = conn.getresponse()
+    except Exception as e:
+        conn.close()
+        return jsonify({"ok": False, "message": f"camera not answering ({e})"}), 502
+    keep = {k: v for k, v in r.getheaders()
+            if k.lower() in ("content-type", "content-length", "content-range",
+                             "accept-ranges", "location", "content-disposition")}
+    def body():
+        try:
+            while True:
+                b = r.read(65536)
+                if not b:
+                    break
+                yield b
+        finally:
+            conn.close()
+    return Response(body(), status=r.status, headers=keep, direct_passthrough=True)
+
+
 @app.route("/video")
 def video():
     """Old URL kept for compatibility — points at the real stream."""
     host = request.host.split(":")[0]
     return (f'<html><body style="margin:0"><img src="http://{host}:8080/stream" '
             f'style="width:100%"></body></html>')
+
+# 13c: camera relay for the HTTPS drive page. An HTTPS page can't load the
+# plain-HTTP camera on :8080, so the drive page over :5443 (needed for the
+# push-to-talk mic) fetches /cam/... from here instead. Only GETs of the
+# camera's own read-only paths are relayed. The plain-HTTP page doesn't use
+# this at all - it still talks to :8080 directly, exactly as before.
+_CAM_PATHS = ("stream", "health", "record/status", "record/start", "record/stop")
+
+@app.route("/cam/<path:sub>")
+def cam_relay(sub):
+    import http.client
+    if sub not in _CAM_PATHS:
+        return jsonify({"ok": False, "message": "not relayed"}), 404
+    qs = request.query_string.decode("latin-1")
+    conn = http.client.HTTPConnection("127.0.0.1", 8080, timeout=10)
+    try:
+        conn.request("GET", "/" + sub + ("?" + qs if qs else ""))
+        r = conn.getresponse()
+    except Exception as e:
+        conn.close()
+        return jsonify({"ok": False, "message": f"camera not answering ({e})"}), 502
+    ctype = r.getheader("Content-Type", "application/octet-stream")
+    if sub != "stream":
+        try:
+            body = r.read()
+        finally:
+            conn.close()
+        return Response(body, status=r.status, content_type=ctype,
+                        headers={"Cache-Control": "no-store"})
+
+    def relay():
+        try:
+            while True:
+                b = r.read1(65536)      # whatever has arrived - no waiting for a full buffer
+                if not b:
+                    break
+                yield b
+        finally:
+            conn.close()
+    return Response(relay(), status=r.status, content_type=ctype, direct_passthrough=True,
+                    headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
 
 @app.route("/")
 def index():
@@ -733,7 +903,7 @@ def index():
     cached carries the OLD stamp while /version returns the live one. That
     disagreement is what tells you to hard-refresh instead of hunting a
     phantom bug in code the browser never loaded."""
-    return render_template("index.html", version=STAMP, voice_enabled=VOICE_ENABLED)
+    return render_template("index.html", version=STAMP, remote=is_remote())
 
 @app.route("/version")
 def version():
@@ -758,12 +928,17 @@ def move():
     """
     global current_speed, last_command_time, motors_active
     # The robot is talking: the motor pins belong to voice.py until it is done.
-    if voice is not None and voice.busy:
+    # 13b: with DRIVE WHILE TALKING on (talk page), the joystick drive is mixed
+    # into the voice waveform instead; off = driving locked, as before.
+    talking = voice is not None and voice.busy
+    if talking and not voice.drive_on:
         return jsonify({"status": "speaking", "left": 0.0, "right": 0.0})
     data = request.get_json()
     x = float(data.get("x", 0))  # Left/right  (-1 = full left, 1 = full right)
     y = float(data.get("y", 0))  # Fwd/back    (-1 = full back, 1 = full forward)
 
+    global _cmd_timeout
+    _cmd_timeout = link_timeout()
     last_command_time = time.monotonic()
 
     # ── TANK STEERING MATH ──────────────────────────────────────────────────
@@ -816,6 +991,11 @@ def move():
     global _out_left, _out_right
     _out_left, _out_right = left_speed, right_speed
 
+    _voice_drive(left_speed, right_speed)   # 13b: ready if speech starts mid-drive
+    if talking:
+        motors_active = (abs(left_speed) > 0.05 or abs(right_speed) > 0.05)
+        return jsonify({"status": "speaking", "left": left_speed, "right": right_speed})
+
     if GPIO_AVAILABLE:
         if left_speed > 0.05:     motor_left.forward(left_speed)
         elif left_speed < -0.05:  motor_left.backward(abs(left_speed))
@@ -834,6 +1014,7 @@ def stop():
     """Emergency stop - called when joystick is released"""
     global motors_active
     motors_active = False
+    _voice_drive(0.0, 0.0)                  # 13b
     if voice is not None and voice.busy:
         # gpiozero writing the pins mid-speech would chop the sound up; the
         # motors are already stopped as far as driving is concerned.
@@ -855,8 +1036,6 @@ def _no_voice():
 
 @app.route("/talk")
 def talk_page():
-    if not VOICE_ENABLED:
-        return "Voice is turned off on this robot.", 404
     return render_template("talk.html", version=STAMP)
 
 @app.route("/voice", methods=["GET"])
@@ -878,17 +1057,22 @@ def voice_level():
         voice.set_level(data["level"])
     if "clarity" in data:
         voice.set_clarity(data["clarity"])
+    if "drive" in data:                              # 13b: DRIVE WHILE TALKING switch
+        voice.set_drive_enabled(bool(data["drive"]))
+        if not voice.drive_on:
+            voice.set_drive(0.0, 0.0)
     if "fixed62" in data or "dither" in data:       # 11m tone-test switches
         voice.set_tone_test(fixed62=data.get("fixed62"), dither=data.get("dither"))
     return jsonify({"level": voice.level, "smooth": voice.smooth, "power": voice.power,
-                    "clarity": voice.clarity, "fixed62": voice.fixed62, "dither": voice.use_dither})
+                    "clarity": voice.clarity, "fixed62": voice.fixed62, "dither": voice.use_dither,
+                    "drive": voice.drive_on})
 
 @app.route("/voice/say", methods=["POST"])
 def voice_say():
     if voice is None:
         return _no_voice()
     data = request.get_json(silent=True) or {}
-    ok, msg = voice.say(data.get("text", ""))
+    ok, msg = voice.say(data.get("text", ""), data.get("voice"))
     return jsonify({"ok": ok, "message": msg}), (200 if ok else 409)
 
 @app.route("/voice/clip", methods=["POST"])
@@ -921,6 +1105,40 @@ def voice_stop():
         return _no_voice()
     voice.stop()
     return jsonify({"ok": True})
+
+# ─── MIC ROUTES (13f) ─────────────────────────────────────────────────────────
+@app.route("/mic", methods=["GET"])
+def mic_status():
+    if mic is None:
+        return jsonify({"available": False})
+    return jsonify(mic.status())
+
+@app.route("/mic/stream")
+def mic_stream():
+    """Endless raw 16 kHz mono s16le. The phone reads it with fetch() and plays
+    it through Web Audio. Closing the fetch on the phone unsubscribes."""
+    if mic is None:
+        return jsonify({"available": False, "error": "mic_live.py did not load"}), 503
+    if not mic.present:
+        return jsonify({"available": False, "error": mic.reason}), 503
+    import queue as _q
+    q = mic.subscribe()
+
+    def gen():
+        try:
+            while True:
+                try:
+                    yield q.get(timeout=2.0)
+                except _q.Empty:
+                    if not mic.running:
+                        return                  # reader died (see /mic error)
+                    yield bytes(1024)           # 32 ms of silence: checks the phone is still there
+        finally:
+            mic.unsubscribe(q)
+
+    return Response(gen(), mimetype="application/octet-stream",
+                    headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+                    direct_passthrough=True)
 
 # Remembered so the button turns the light back on at the brightness you last
 # chose, instead of jumping to full every time.
@@ -1036,10 +1254,13 @@ def rgb_set():
     _apply_lights()
     return jsonify({"status": "ok", "colour": name})
 
-@app.route("/speed", methods=["POST"])
+@app.route("/speed", methods=["GET", "POST"])
 def set_speed():
-    """Set motor speed multiplier (0.0 to 1.0)"""
+    """Set motor speed multiplier (0.0 to 1.0). GET reports it, so the page's
+    SPD slider can start where the robot really is (40% on a first boot)."""
     global current_speed
+    if request.method == "GET":
+        return jsonify({"speed": current_speed, "first_boot": FIRST_BOOT})
     data = request.get_json()
     current_speed = float(data.get("speed", 0.7))
     current_speed = max(0.1, min(1.0, current_speed))
@@ -1521,10 +1742,102 @@ if ADC_AVAILABLE:
 else:
     print("[WARN] No battery reading - low-battery cutoff is OFF")
 
+# ─── POWER LOG (13j) ──────────────────────────────────────────────────────────
+# 13 Nov: the robot browned out (log just stopped) while recording + driving +
+# talking + listening. This writes one line every 5 s to ~/zerobot_power.log,
+# forced to the SD card each time so the lines before a power cut survive:
+# pack volts (min/max of 0.5 s samples - catches the sag under load), the Pi's
+# power flags, temperature, and what was running. After a crash:
+#     tail -40 ~/zerobot_power.log
+# Flags (get_throttled): bit 0 = under-voltage NOW, bit 2 = throttled NOW,
+# bit 16/18 = has happened since boot. 0x0 = power has been fine.
+POWER_LOG = os.path.expanduser("~/zerobot_power.log")
+POWER_LOG_S = 5
+POWER_LOG_MAX = 2_000_000                  # bytes, then the old file becomes .1
+
+def _throttled():
+    try:
+        with open("/sys/devices/platform/soc/soc:firmware/get_throttled") as f:
+            return int(f.read().strip(), 16)
+    except Exception:
+        pass
+    try:
+        out = subprocess.run(["vcgencmd", "get_throttled"], capture_output=True,
+                             text=True, timeout=2).stdout
+        return int(out.strip().split("=")[1], 16)
+    except Exception:
+        return None
+
+def _cpu_temp():
+    try:
+        with open("/sys/class/thermal/thermal_zone0/temp") as f:
+            return int(f.read()) / 1000.0
+    except Exception:
+        return None
+
+def _power_line(vs):
+    v = f"{vs[-1]:.2f} V (min {min(vs):.2f} max {max(vs):.2f})" if vs else "no ADC"
+    thr = _throttled()
+    t = _cpu_temp()
+    try:
+        rec = bool(camera.recorder._running)
+    except Exception:
+        rec = None
+    vbusy = voice is not None and voice.busy
+    bits = [time.strftime("%Y-%m-%d %H:%M:%S"), v,
+            "flags " + (f"0x{thr:x}" if thr is not None else "?"),
+            f"{t:.0f}C" if t is not None else "?C",
+            "|", "DRIVE" if motors_active else "idle",
+            "REC" if rec else "", ("VOICE:" + str(voice.mode)) if vbusy else "",
+            f"MIC x{len(mic.subs)}" if (mic is not None and mic.subs) else "",
+            "load %.1f" % os.getloadavg()[0]]
+    return " ".join(b for b in bits if b), thr
+
+def power_log():
+    last_now = None
+    try:
+        with open(POWER_LOG, "a") as f:
+            f.write(f"===== start {time.strftime('%Y-%m-%d %H:%M:%S')} build {STAMP}\n")
+            f.flush(); os.fsync(f.fileno())
+    except Exception as e:
+        print(f"[WARN] Power log unavailable ({e})")
+        return
+    while True:
+        vs = []
+        for _ in range(int(POWER_LOG_S / 0.5)):
+            v = read_pack_voltage()
+            if v is not None and v >= BATT_INVALID_V:
+                vs.append(v)
+            time.sleep(0.5)
+        try:
+            line, thr = _power_line(vs)
+            if os.path.exists(POWER_LOG) and os.path.getsize(POWER_LOG) > POWER_LOG_MAX:
+                os.replace(POWER_LOG, POWER_LOG + ".1")
+            with open(POWER_LOG, "a") as f:
+                f.write(line + "\n")
+                f.flush(); os.fsync(f.fileno())
+            now_bits = (thr & 0xF) if thr is not None else None
+            if now_bits != last_now:          # the journal only gets CHANGES
+                if now_bits:
+                    print(f"[POWER] LOW POWER NOW: {line}", flush=True)
+                elif last_now:
+                    print(f"[POWER] power back to normal: {line}", flush=True)
+                last_now = now_bits
+        except Exception as e:
+            print(f"[POWER] power log error: {e}", flush=True)
+
+threading.Thread(target=power_log, daemon=True).start()
+print(f"[OK] Power log: {POWER_LOG} every {POWER_LOG_S} s")
+
 # ─── STARTUP ──────────────────────────────────────────────────────────────────
 def cleanup(sig=None, frame=None):
     """Clean up hardware on exit"""
     print("\n[INFO] Shutting down...")
+    if remote_addon is not None:
+        try:
+            remote_addon.stop()             # let the add-on shut down cleanly
+        except Exception:
+            pass
     if voice is not None:
         voice.stop()
     if GPIO_AVAILABLE:
@@ -1552,16 +1865,212 @@ def get_ip():
     finally:
         s.close()
 
+# ─── SETUP CHECK (12 Nov 2026) ───────────────────────────────────────────────
+# One red/green list of everything a builder can get wrong, in plain words.
+# The page is /setup; the data is /setupcheck. Each item: state is pass, warn,
+# fail or wait (needs the robot to do something first), with a "fix" line that
+# matches ASSEMBLY.md's Fix-it table. Read-only: it never moves the motors.
+
+def _sh(cmd, timeout=3):
+    """Run a short command, return (returncode, stdout). Never raises."""
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        return r.returncode, r.stdout.strip()
+    except Exception as e:
+        return -1, str(e)
+
+def _robot_processes():
+    """How many robot.py processes are running (should be exactly 1)."""
+    n = 0
+    for pid in os.listdir("/proc"):
+        if not pid.isdigit():
+            continue
+        try:
+            with open(f"/proc/{pid}/cmdline", "rb") as f:
+                cmd = f.read().replace(b"\0", b" ")
+        except Exception:
+            continue
+        if b"python" in cmd and b"robot.py" in cmd:
+            n += 1
+    return n
+
+def _item(id_, label, state, detail="", fix=""):
+    return {"id": id_, "label": label, "state": state, "detail": detail, "fix": fix}
+
+def setup_items():
+    items = []
+
+    # 1. Software: one copy running
+    n = _robot_processes()
+    if n <= 1:
+        items.append(_item("software", "Robot software", "pass", f"Build {STAMP}"))
+    else:
+        items.append(_item("software", "Robot software", "fail",
+                           f"{n} copies of robot.py are running",
+                           "Restart it: sudo systemctl restart zerobot (or reboot)."))
+
+    # 2. Battery sensor (ADS1115) answering
+    if ADC_AVAILABLE:
+        items.append(_item("adc", "Battery sensor (ADS1115)", "pass", "Found on I2C"))
+    else:
+        items.append(_item("adc", "Battery sensor (ADS1115)", "fail", str(ADC_ERROR),
+                           "Check it's seated with VDD at the VDD mark, and the Pi link wires on "
+                           "pins 1, 3 and 5. On a terminal, i2cdetect -y 1 should show 48."))
+
+    # 3. Battery voltage (1S Li-ion: 3.0-4.2 V)
+    if ADC_AVAILABLE:
+        try:
+            v = battery_channel.voltage * BATTERY_SCALE
+            if v > 4.35:
+                items.append(_item("battery", "Battery voltage", "fail", f"{v:.2f} V",
+                                   "Too high for one Li-ion cell. Switch off NOW: this robot is "
+                                   "1S (3.7 V) only. A 2-cell pack damages the boost and charger."))
+            elif v >= 3.4:
+                items.append(_item("battery", "Battery voltage", "pass", f"{v:.2f} V"))
+            elif v >= 3.0:
+                items.append(_item("battery", "Battery voltage", "warn", f"{v:.2f} V",
+                                   "Getting low. Charge it soon."))
+            else:
+                items.append(_item("battery", "Battery voltage", "fail", f"{v:.2f} V",
+                                   "Below 3.0 V. Charge the battery. If it stays near 0 V, a cell's "
+                                   "protection has tripped: find the short before charging."))
+        except Exception as e:
+            items.append(_item("battery", "Battery voltage", "fail", str(e),
+                               "The sensor stopped answering. Check its seating and wires."))
+    else:
+        items.append(_item("battery", "Battery voltage", "wait", "Needs the battery sensor first"))
+
+    # 4. Pi power supply (under-voltage flags)
+    rc, out = _sh(["vcgencmd", "get_throttled"])
+    if rc == 0 and "=" in out:
+        try:
+            flags = int(out.split("=")[1], 16)
+        except ValueError:
+            flags = None
+        if flags is None:
+            items.append(_item("power", "Pi power supply", "warn", out))
+        elif flags & 0x1:
+            items.append(_item("power", "Pi power supply", "fail", "Low voltage right now",
+                               "The Pi isn't getting enough power. Check the charger board's 5 V "
+                               "(4.9-5.25 V), charge the battery, and unplug the USB-C charger while testing."))
+        elif flags & 0x50000:
+            items.append(_item("power", "Pi power supply", "warn", "Low voltage happened since boot",
+                               "Usually a weak or nearly flat battery, or talking very loudly. "
+                               "Charge it and keep an eye on this."))
+        else:
+            items.append(_item("power", "Pi power supply", "pass", "No low-voltage events"))
+    else:
+        items.append(_item("power", "Pi power supply", "warn", "vcgencmd not available"))
+
+    # 5. Camera
+    try:
+        model = camera._cfg.get("_sensor")
+        age = camera._output.age()
+    except Exception:
+        model, age = None, None
+    if model and age is not None and age < 3:
+        items.append(_item("camera", "Camera", "pass", f"{model}, streaming"))
+    elif model:
+        items.append(_item("camera", "Camera", "warn", f"{model} found, no recent frames",
+                           "If the picture stays black, power off and reseat the ribbon. "
+                           "A camera that's found but gives no picture usually means a damaged ribbon."))
+    else:
+        items.append(_item("camera", "Camera", "fail", "No camera found",
+                           "Power off, then check the ribbon at both ends: contacts the right way, "
+                           "latches closed. Pi Zero boards need the 15-to-22 ribbon."))
+
+    # 6. Wheel encoders and pairing
+    if not ENCODERS_AVAILABLE:
+        items.append(_item("encoders", "Wheel speed sensors", "fail", "Not available",
+                           "The pigpio service may not be running: sudo systemctl status pigpiod. "
+                           "Then check both motor plugs are fully home."))
+    elif _bal_fault is not None:
+        items.append(_item("encoders", "Wheel speed sensors", "fail", str(_bal_fault),
+                           "Tap BAL on the control page to see why and retry. "
+                           "A silent sensor usually means a loose motor plug."))
+    elif _pair_state == "confirmed":
+        items.append(_item("encoders", "Wheel speed sensors", "pass",
+                           f"Both counting and on the right motors ({_enc_left_total} / {_enc_right_total} pulses)"))
+    elif _enc_left_total == 0 and _enc_right_total == 0:
+        items.append(_item("encoders", "Wheel speed sensors", "wait", "No pulses yet",
+                           "Drive forward a little, or run the pair check below (wheels off the table)."))
+    else:
+        items.append(_item("encoders", "Wheel speed sensors", "wait",
+                           f"Counting ({_enc_left_total} / {_enc_right_total} pulses), pairing not confirmed yet",
+                           "Drive in a few turns, or run the pair check below (wheels off the table)."))
+
+    # 7. Power-off permission (low-battery cutoff and the OFF button)
+    rc, _ = _sh(["sudo", "-n", "-l", "/usr/sbin/shutdown"])
+    if rc == 0:
+        items.append(_item("shutdown", "Safe power-off", "pass", "Allowed"))
+    else:
+        items.append(_item("shutdown", "Safe power-off", "warn", "Not allowed yet",
+                           "Low-battery cutoff and the OFF button won't work. Re-run the installer."))
+
+    # 8. Talk page certificate
+    tls = os.path.expanduser("~/.zerobot_tls")
+    if os.path.exists(os.path.join(tls, "cert.pem")):
+        items.append(_item("talk", "Talk page", "pass", "Certificate ready"))
+    else:
+        items.append(_item("talk", "Talk page", "warn", "No certificate yet",
+                           "Restart the robot once; the setup makes one."))
+    return items
+
+@app.route("/setup")
+def setup_page():
+    return render_template("setup.html", version=STAMP)
+
+@app.route("/setupcheck")
+def setupcheck():
+    items = setup_items()
+    ok = not any(i["state"] in ("fail", "wait") for i in items)
+    if ok and FIRST_BOOT and not os.path.exists(SETUP_OK_FILE):
+        try:
+            with open(SETUP_OK_FILE, "w") as f:
+                f.write(time.strftime("%Y-%m-%d %H:%M:%S") + " " + STAMP + "\n")
+            print("[OK] Setup check passed - normal 70% start speed from the next boot")
+        except Exception as e:
+            print(f"[WARN] Could not save the setup-passed flag ({e})")
+    return jsonify({"ok": ok, "items": items, "first_boot": FIRST_BOOT,
+                    "setup_ok_saved": os.path.exists(SETUP_OK_FILE), "stamp": STAMP})
+
 TLS_DIR = os.path.expanduser("~/.zerobot_tls")   # outside ~/zerobot: survives redeploys,
 HTTPS_PORT = 5443                                  # so the phone's "proceed anyway" sticks
+
+# ─── START-UP CHIME (13 Nov 2026) ────────────────────────────────────────────
+# Rising three notes through the motors once the robot is on the network and
+# its pages are up = "ready, connect now". If no WiFi turns up within
+# CHIME_WAIT_S, two falling notes instead = "running, but no network".
+# Plays on every start of the service (boot, deploy, watchdog restart).
+CHIME_ON_START = True
+CHIME_WAIT_S = 90
+
+def startup_chime():
+    if voice is None or not CHIME_ON_START:
+        return
+    try:
+        t0 = time.monotonic()
+        ip = get_ip()
+        while (ip == "0.0.0.0" or ip.startswith("127.")) and time.monotonic() - t0 < CHIME_WAIT_S:
+            time.sleep(2)
+            ip = get_ip()
+        online = not (ip == "0.0.0.0" or ip.startswith("127."))
+        time.sleep(2)                       # let Flask and the camera finish starting
+        for _ in range(10):                 # someone may already be talking/driving
+            if not voice.busy:
+                break
+            time.sleep(1)
+        ok, msg = voice.chime(online)
+        print(f"[INFO] Start-up chime ({'online ' + ip if online else 'NO network'}): "
+              f"{'played' if ok else msg}", flush=True)
+    except Exception as e:
+        print(f"[WARN] Start-up chime failed ({e})", flush=True)
 
 def start_https(ip):
     """Second copy of the same app on HTTPS, for the TALK page's microphone.
     The certificate is self-signed (setup.sh makes it), so the phone warns
     once - tap Advanced -> Proceed. Port 5000 stays plain HTTP and unchanged:
     the video on :8080 is HTTP, and an HTTPS page can't show it."""
-    if not VOICE_ENABLED:
-        return
     cert = os.path.join(TLS_DIR, "cert.pem")
     key = os.path.join(TLS_DIR, "key.pem")
     if not (os.path.exists(cert) and os.path.exists(key)):
@@ -1597,5 +2106,8 @@ if __name__ == "__main__":
     camera.start(port=8080, hflip=1, vflip=1)
     print(f"[INFO] Camera stream:     http://{ip}:8080/stream")
     start_https(ip)
+    if remote_addon is not None:
+        remote_addon.start()
+    threading.Thread(target=startup_chime, daemon=True).start()
     print("[INFO] Press Ctrl+C to stop\n")
     app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)

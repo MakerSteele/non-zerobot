@@ -17,6 +17,7 @@ set -u
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 POWERSAVE=/usr/local/lib/zerobot/powersave.sh
+PCMSWAP=/usr/local/lib/zerobot/pcm_swap.py
 APT_OK="python3-flask python3-gpiozero python3-picamera2 i2c-tools pigpio python3-pigpio espeak-ng python3-scipy"
 
 refuse() { echo "zerobot-root: refused: $*" >&2; exit 2; }
@@ -49,11 +50,17 @@ case "${1:-}" in
     systemctl enable --now pigpiod 2>/dev/null || pigpiod 2>/dev/null
     exit 0
     ;;
+  pcm)
+    # 13k: I2S mic <-> pigpio voice hand-over, see pcm_swap.py
+    case "${2:-}" in save-clear|restore|status) ;; *) refuse "pcm ${2:-}";; esac
+    [ -f "$PCMSWAP" ] || refuse "$PCMSWAP missing - rerun install-root-helper.sh"
+    exec /usr/bin/python3 "$PCMSWAP" "$2"
+    ;;
   check)
     echo "zerobot-root: OK"
     exit 0
     ;;
   *)
-    refuse "unknown job '${1:-}' (allowed: powersave, apt, i2c, pigpiod, check)"
+    refuse "unknown job '${1:-}' (allowed: powersave, apt, i2c, pigpiod, pcm, check)"
     ;;
 esac

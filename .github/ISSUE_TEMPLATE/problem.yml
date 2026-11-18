@@ -1,0 +1,42 @@
+name: Something isn't working
+description: Report a problem building or running a Non-Zerobot
+labels: ["problem"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! The more of this you fill in, the faster it gets fixed.
+        Tip: the **CHECK** page (⚙ menu on the control page) often shows exactly what's wrong. A screenshot of it helps a lot.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: build
+    attributes:
+      label: Software build
+      description: Shown on the control page (VER) or at the top of the CHECK page, e.g. 4.7+2026-11-12a
+  - type: dropdown
+    id: pi
+    attributes:
+      label: Which Pi?
+      options: ["Pi 3B+", "Pi 3B", "Pi 3A+", "Pi Zero 2 W", "Pi Zero W", "Other"]
+  - type: dropdown
+    id: camera
+    attributes:
+      label: Which camera?
+      options: ["OV5647", "Camera Module 3", "AI Camera", "Other / not sure"]
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Where were you?
+      options: ["Ordering parts", "Assembly", "Installing the software", "Driving / using it", "Other"]
+  - type: textarea
+    id: log
+    attributes:
+      label: Log output (if it's a software problem)
+      description: "On the robot, run: journalctl -u zerobot -n 50 --no-pager   and paste the result here."
+      render: text

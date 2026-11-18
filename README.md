@@ -1,6 +1,6 @@
 # Non-Zerobot
 
-A small 3D-printed FPV robot you drive from your phone's web browser. It streams live video, has RGB headlights, and keeps itself driving straight using wheel encoders.
+A small 3D-printed FPV robot you drive from your phone's web browser. It streams live video, has RGB headlights, keeps itself driving straight using wheel encoders, and can even *talk* through its drive motors.
 
 It started life as a Raspberry Pi Zero robot — hence the name. Pi Zeros got hard to find, so it now runs happily on a Pi 3B+ too. It's kind of a non-zero bot now.
 
@@ -20,6 +20,7 @@ It started life as a Raspberry Pi Zero robot — hence the name. Pi Zeros got ha
 - **Live video** from the Pi camera, with photo and video recording.
 - **RGB headlights** with colour and brightness control.
 - **Drives straight on its own** — the encoder motors let it balance left and right wheel speed automatically.
+- **Talks through its motors** — hold **TALK** and speak into your phone, or type a sentence under ⚙ → **SOUNDS**, and the robot says it out loud by buzzing its drive motors like a speaker.
 - **Built-in self-checks** — buttons to confirm motors and encoders are wired the right way round.
 - **Looks after itself** — runs as a background service, restarts if it ever hangs, and shuts down safely on low battery.
 

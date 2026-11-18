@@ -20,6 +20,7 @@ ZB_ROOT=/usr/local/sbin/zerobot-root
 if sudo -n "$ZB_ROOT" check >/dev/null 2>&1; then
   ZB_ROOT_OK=1
   cmp -s ./zerobot-root.sh "$ZB_ROOT" && cmp -s ./powersave.sh /usr/local/lib/zerobot/powersave.sh \
+    && cmp -s ./pcm_swap.py /usr/local/lib/zerobot/pcm_swap.py \
     || echo "[WARN] root helper is out of date - update once:  sudo bash ~/zerobot/install-root-helper.sh"
 else
   ZB_ROOT_OK=0
