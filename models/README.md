@@ -9,9 +9,14 @@
 | `P-04_MOTOR_HOLDER-SBS-V2.STL` | Motor holder | Heavily modified |
 | `P-04_MOTOR_HOLDER-SBS-Mirrored-V2.STL` | Motor holder, mirrored | For the other side |
 | `P-07_WHEEL-SBS.STL` | Wheel (print 2) | Made slightly larger than the original, so the tire stretches on |
-| `P-08_TIRE.STL` | Tire (print 2) | Original ZDV tire, unchanged |
+| `P-08_TIRE.STL` | Tire (print 2) | Original ZDV tire, unchanged. **Print in TPU** |
 | `P-09_FACE_PANEL-SBS-V3.STL` | Face panel | Heavily modified |
 | `LED-Mount.STL` | Headlight LED mount (print 4) | New part |
+
+## Printing
+
+- **Tires:** TPU (flexible).
+- **Everything else:** no special settings.
 
 ## License
 
