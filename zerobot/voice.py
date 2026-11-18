@@ -11,7 +11,7 @@ Proven by motor_speak.py on 10 Nov 2026 ("take me to your leader" was clear at
 level 6). This module is the same method, made to stream:
 
   * play_clip(samples)  - a recording or uploaded file (already 16 kHz PCM)
-  * say(text)           - espeak-ng text-to-speech
+  * say(text, style)    - espeak-ng text-to-speech (SAY_VOICES presets)
   * live_feed(block)    - live talk from the phone, a block at a time
 
 Only one sound plays at a time. While `busy` is True the motor pins belong to
@@ -20,6 +20,7 @@ this module and robot.py must not drive (it checks voice.busy in /move).
 Every audio path runs through Shaper, which does: bass cut -> automatic level
 (AGC) -> noise gate -> consonant lift -> overdrive -> scale to motor duty.
 """
+import json
 import os
 import struct
 import subprocess
@@ -76,6 +77,26 @@ LIVE_TIMEOUT = 1.0           # no audio from the phone for this long = talk sess
 
 CLIP_MAX_SECONDS = 60
 
+# 12c: SAY voices - all espeak-ng (instant). Chosen on the talk page; the
+# key is checked against this list, so nothing else ever reaches the command.
+# en-us instead of espeak's default British "en"; -g = gap between words
+# (10 ms units) so each word lands separately through the motors; higher
+# pitch (-p) keeps more of the voice above the 250 Hz bass cut.
+SAY_VOICES = {
+    "clear":   ("CLEAR ROBOT", ["-v", "en-us+m3", "-s", "135", "-p", "55", "-g", "4"]),
+    "robo":    ("ROBO",        ["-v", "en-us+robosoft", "-s", "135", "-g", "4"]),
+    "uni":     ("UNIROBOT",    ["-v", "en-us+UniRobot", "-s", "135"]),
+    "retro":   ("RETRO",       ["-v", "en-us+klatt3", "-s", "135", "-g", "4"]),
+    "high":    ("HIGH",        ["-v", "en-us+f3", "-s", "135", "-p", "60", "-g", "4"]),
+    "classic": ("CLASSIC",     ["-s", "130"]),          # the 10a-12a voice
+}
+SAY_DEFAULT = "clear"
+
+# 13e: voice settings that survive restarts and deploys (outside ~/zerobot).
+# Only the 62 us switch for now - picked by ear, ON by default.
+VOICE_SETTINGS = os.path.join(os.path.expanduser("~"), ".zerobot_voice.json")
+FIXED62_DEFAULT = True
+
 # ── Power limit ──────────────────────────────────────────────────────────────
 # Talking motors never turn, so they draw close to STALL current: no back-EMF.
 # At loudness 6 the overdrive held both motors near full power for as long as
@@ -84,7 +105,7 @@ CLIP_MAX_SECONDS = 60
 # The limiter keeps the AVERAGE drive (over ~0.1 s) at or below the budget.
 # Short peaks still get through, so speech stays clear; long loud stretches
 # are turned down.
-POWER_DEFAULT = 0.75         # fraction of full motor power, averaged. 75% picked by ear
+POWER_DEFAULT = 0.75         # fraction of full motor power, averaged. 11d: 75% picked by ear
                              # (11 Nov). Not yet proven on a 30 s talk - drop it if the Pi browns out.
 LIM_ATTACK = 0.7             # per 6 ms block: reacts within ~10 ms
 LIM_RELEASE = 0.05           # per 6 ms block: lets go over ~0.1 s
@@ -430,6 +451,70 @@ def build_rows(duty, fwd_mask, back_mask, dither=None, fixed62=False, use_dither
     return rows
 
 
+# ── 13b: drive while talking ─────────────────────────────────────────────────
+# Each motor gets its OWN waveform: its drive duty (from the joystick) plus the
+# voice on top, braking between pulses (13d). With no drive the old shared
+# waveform is used, unchanged.
+DUTY_MAX = 0.95              # same ceiling Shaper keeps the voice under (see _diffuse)
+DRIVE_STALE_S = 0.4          # no drive update for this long = stop (own deadman; the
+                             # phone sends every 50 ms, robot.py's watchdog is 0.35 s)
+DRIVE_DUCK = 0.5             # voice is scaled by 1 - DUCK x drive: at full speed the
+                             # voice is halved, so motor current and clipping stay sane
+
+
+def build_rows_dual(tA, tB, per, maskA, maskB):
+    """Pulses for two motors with DIFFERENT waveforms (13b), SLOW DECAY (13d).
+
+    tA, tB: signed microseconds per cycle for each motor (from _diffuse), per:
+    cycle lengths. maskA/maskB: (fwd_mask, back_mask) of each motor.
+
+    13d: 13b drove "on, then all pins off" (coast = fast decay). At 16 kHz the
+    motor current dies away in every off gap, so a 50% drive barely turned
+    the wheels (13 Nov: drive reached the voice, robot didn't move). Now each
+    motor is: ON  = drive pin high, other low, for |t| us;
+              rest of the cycle = BOTH pins high (TB6612 short brake).
+    Brake keeps the current flowing (slow decay), so the push follows the
+    duty like a normal motor drive. A motor with t = 0 brakes the whole cycle.
+    Only used while driving; talking-only still uses build_rows (coast)."""
+    n = len(tA)
+    if n == 0:
+        return np.zeros((0, 3), dtype=np.uint32)
+    tA = np.asarray(tA, dtype=np.int64)
+    tB = np.asarray(tB, dtype=np.int64)
+    per = np.asarray(per, dtype=np.int64)
+    bothA = maskA[0] | maskA[1]
+    bothB = maskB[0] | maskB[1]
+    dirA = np.where(tA > 0, maskA[0], np.where(tA < 0, maskA[1], bothA)).astype(np.int64)
+    dirB = np.where(tB > 0, maskB[0], np.where(tB < 0, maskB[1], bothB)).astype(np.int64)
+    oppA = np.where(tA > 0, maskA[1], np.where(tA < 0, maskA[0], 0)).astype(np.int64)
+    oppB = np.where(tB > 0, maskB[1], np.where(tB < 0, maskB[0], 0)).astype(np.int64)
+    aA, aB = np.abs(tA), np.abs(tB)
+    big = per + 1
+    xA = np.where(aA > 0, aA, big)
+    xB = np.where(aB > 0, aB, big)
+    first = np.minimum(xA, xB)
+    first = np.where(first == big, per, first)               # both braking: whole cycle
+    second = np.maximum(aA, aB)
+    eq = (aA == aB) | (aA == 0) | (aB == 0)                  # one switch is enough
+    first_on = np.where(eq, oppA | oppB, np.where(xA < xB, oppA, oppB))
+    second_on = np.where(eq, 0, (oppA | oppB) & ~first_on)
+    rows = np.zeros((n, 3, 3), dtype=np.int64)
+    rows[:, 0, 0] = dirA | dirB                              # cycle start: drive pins high...
+    rows[:, 0, 1] = oppA | oppB                              # ...the other pins low
+    rows[:, 0, 2] = first
+    rows[:, 1, 0] = first_on                                 # first motor's ON ends: brake
+    rows[:, 1, 2] = np.where(eq, per - first, second - first)
+    rows[:, 2, 0] = second_on                                # second motor's ON ends: brake
+    rows[:, 2, 2] = np.where(eq, 0, per - second)
+    rows = rows.reshape(-1, 3)
+    rows = rows[rows[:, 2] > 0]                              # drop zero-length steps
+    rows = rows.astype(np.uint32)
+    if len(rows) and rows[-1, 2] > 2 * TAIL_US:              # 11k short tail
+        rows[-1, 2] -= TAIL_US
+        rows = np.concatenate((rows, np.array([[0, 0, TAIL_US]], dtype=np.uint32)))
+    return rows
+
+
 def resample(x, src_rate):
     """Linear resample to RATE. Fine for speech through a motor."""
     if src_rate == RATE or len(x) < 2:
@@ -437,6 +522,23 @@ def resample(x, src_rate):
     t_old = np.arange(len(x)) / float(src_rate)
     t_new = np.arange(0.0, t_old[-1], 1.0 / RATE)
     return np.interp(t_new, t_old, x)
+
+
+def make_chime(online=True):
+    """13a: start-up chime. online=True: three rising notes (E5 G5 C6) = on the
+    network and ready. online=False: two falling notes = running but no WiFi.
+    Bell-like: each note starts sharp and decays, with a little 2nd harmonic
+    so it carries through the motors."""
+    notes = [(659.3, 0.13), (784.0, 0.13), (1046.5, 0.45)] if online \
+        else [(784.0, 0.18), (523.3, 0.45)]
+    gap = np.zeros(int(0.03 * RATE))
+    parts = [np.zeros(int(0.05 * RATE))]
+    for f, dur in notes:
+        t = np.arange(int(dur * RATE)) / RATE
+        env = np.exp(-t / (dur * 0.45)) * np.minimum(1.0, t / 0.004)
+        parts += [env * (np.sin(2 * np.pi * f * t) + 0.3 * np.sin(4 * np.pi * f * t)), gap]
+    x = np.concatenate(parts)
+    return 0.9 * x / np.max(np.abs(x))
 
 
 def pcm16_to_float(raw):
@@ -452,17 +554,22 @@ class Voice:
         motor. stop_motors: called before speaking so gpiozero lets go."""
         self.pi = pi
         self.pins = [g for pair in pin_pairs for g in pair]
+        self.pair_masks = [((1 << f), (1 << b)) for f, b in pin_pairs]   # 13b: per motor
         self.fwd_mask = sum(1 << f for f, _ in pin_pairs)
         self.back_mask = sum(1 << b for _, b in pin_pairs)
         self.stop_motors = stop_motors
-        self.level = 6.0
+        self.level = 10.0           # 13n: loudness max by default (POWER still bounds current)
         self.smooth = 5.0
         self.power = POWER_DEFAULT
-        self.clarity = 0.0
+        self.clarity = 9.0          # 13n: near max by default
         self.avg_drive = 0.0
         self._shaper = None         # the Shaper of whatever is playing now
         self.busy = False
         self.mode = None            # "clip", "say", "live"
+        # 13k: called (synchronously) just before the first wave of every
+        # sound. robot.py sets it to mic.pause_for_voice, which stops the I2S
+        # mic and gives pigpio back the PCM settings its waves depend on.
+        self.before_audio = None
         self.last_error = None
         self.underruns = 0          # pigpio ran out of audio: Pi too slow to keep up
         self.dropouts = 0           # live audio from the phone arrived late: WiFi
@@ -473,8 +580,17 @@ class Voice:
         self.relinks = 0            # 11j: lost SYNC links recovered in the last playback
         # 11m tone-test switches (see _diffuse). Read at every chunk, so they
         # change the sound that is playing now. Not saved: a restart = defaults.
-        self.fixed62 = False
+        self.fixed62 = FIXED62_DEFAULT      # 13e: ON by default, saved when changed
         self.use_dither = True
+        try:
+            with open(VOICE_SETTINGS) as f:
+                saved = json.load(f)
+            if isinstance(saved.get("fixed62"), bool):
+                self.fixed62 = saved["fixed62"]
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(f"[VOICE] couldn't read {VOICE_SETTINGS} ({e}) - using defaults", flush=True)
         # 11i: hand pigpio the pulses as one block of bytes instead of 1000
         # Python objects. Uses pigpio's own internal call (the one
         # wave_add_generic makes); if this pigpio doesn't have it, the normal
@@ -495,6 +611,14 @@ class Voice:
         self._live_active = False   # True while a live session is still accepting audio
         self._live_old_sids = []
         self._live_feed_lock = threading.Lock()
+        self.tts_engine = None              # 12c: SAY_VOICES key of the last SAY
+        # 13b: drive while talking. Values are RAW channel duties (+ = the
+        # motor's first pin in pin_pairs), set by robot.py from the joystick.
+        self.drive_on = True                # talk page switch; off = driving locked while talking
+        self._drive = (0.0, 0.0)
+        self._drive_t = 0.0
+        self._drive_cur = [0.0, 0.0]
+        self._dith2 = [[0.0], [0.0]]
 
     # ── public ───────────────────────────────────────────────────────────────
     def status(self):
@@ -507,7 +631,10 @@ class Voice:
                 "buffer_ms": self.buffer_ms, "error": self.last_error,
                 "work_ms": round(self.work_ms, 1), "work_ms_max": round(self.work_ms_max, 1),
                 "fast_wave": self._fast, "relinks": self.relinks,
-                "fixed62": self.fixed62, "dither": self.use_dither}
+                "fixed62": self.fixed62, "dither": self.use_dither,
+                "tts_last": self.tts_engine,
+                "drive_while_talking": self.drive_on,
+                "drive_lr": [round(v, 2) for v in self._drive_cur] if self.busy else [0.0, 0.0]}
 
     def set_level(self, level):
         self.level = min(max(float(level), 1.0), 10.0)
@@ -533,8 +660,22 @@ class Voice:
         """11m: A/B switches for the tinny tone. Take effect on the next chunk."""
         if fixed62 is not None:
             self.fixed62 = bool(fixed62)
+            self._save_settings()
         if dither is not None:
             self.use_dither = bool(dither)
+
+    def _save_settings(self):
+        """13e: keep the 62 us choice across restarts. Written to a temp file
+        then renamed, so a power cut can't leave a half-written file."""
+        try:
+            tmp = VOICE_SETTINGS + ".tmp"
+            with open(tmp, "w") as f:
+                json.dump({"fixed62": self.fixed62}, f)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, VOICE_SETTINGS)
+        except Exception as e:
+            print(f"[VOICE] couldn't save {VOICE_SETTINGS} ({e})", flush=True)
 
     def _retune(self):
         """11c: slider changes reach the sound that is playing NOW, not just
@@ -542,6 +683,21 @@ class Voice:
         sh = self._shaper
         if sh is not None and self.busy:
             sh.retune(self.level, self.smooth, self.power, self.clarity)
+
+    def set_drive(self, a, b):
+        """13b: joystick drive for each motor channel, -1..1 raw duty. Must be
+        refreshed at least every DRIVE_STALE_S or the motors stop."""
+        self._drive = (max(-DUTY_MAX, min(DUTY_MAX, float(a))),
+                       max(-DUTY_MAX, min(DUTY_MAX, float(b))))
+        self._drive_t = time.monotonic()
+
+    def set_drive_enabled(self, on):
+        self.drive_on = bool(on)
+
+    def _drive_target(self):
+        if not self.drive_on or time.monotonic() - self._drive_t > DRIVE_STALE_S:
+            return (0.0, 0.0)
+        return self._drive
 
     def stop(self):
         """Cut whatever is playing. Returns at once; the worker cleans up."""
@@ -574,13 +730,26 @@ class Voice:
 
         return self._start(source, "clip", f"{len(x) / RATE:.1f} s")
 
-    def say(self, text):
+    def chime(self, online=True):
+        """13a: play the start-up chime (see make_chime). Returns (ok, message)."""
+        ok, msg = self.play_clip(make_chime(online))
+        if ok:
+            self.mode = "chime"
+        return ok, msg
+
+    def say(self, text, style=None):
+        """Typed text -> espeak-ng robot voice (instant). style = a SAY_VOICES
+        key; unknown or missing = SAY_DEFAULT. 12b's Piper voice was removed
+        in 12c: too slow on the 3B+ and too human."""
         text = (text or "").strip()[:300]
         if not text:
             return False, "nothing to say"
+        if self.busy:
+            return False, f"busy ({self.mode})"
+        style = style if style in SAY_VOICES else SAY_DEFAULT
         path = os.path.join(tempfile.gettempdir(), "zerobot_say.wav")
         try:
-            subprocess.run(["espeak-ng", "-s", "130", "-w", path, text],
+            subprocess.run(["espeak-ng"] + SAY_VOICES[style][1] + ["-w", path, "--", text],
                            check=True, timeout=15, capture_output=True)
         except FileNotFoundError:
             return False, "espeak-ng is not installed (sudo apt install espeak-ng)"
@@ -590,12 +759,14 @@ class Voice:
             ch = w.getnchannels()
             rate = w.getframerate()
             raw = w.readframes(w.getnframes())
+        self.tts_engine = style
         x = pcm16_to_float(raw)
         if ch > 1:
             x = x[:len(x) - len(x) % ch].reshape(-1, ch).mean(axis=1)
         ok, msg = self.play_clip(x, rate)
         if ok:
             self.mode = "say"
+            msg = f"{msg} ({SAY_VOICES[style][0].lower()})"
         return ok, msg
 
     def live_feed(self, raw, seq=None, end=False, sid=None):
@@ -728,6 +899,11 @@ class Voice:
             self.mode = mode
             self._abort = False
             self.last_error = None
+        if self.before_audio:
+            try:
+                self.before_audio()
+            except Exception as e:
+                print(f"[VOICE] before_audio (mic hand-over) failed: {e}", flush=True)
         if self.stop_motors:
             try:
                 self.stop_motors()
@@ -754,8 +930,7 @@ class Voice:
 
     def _add_wave(self, duty, dither):
         """Queue one chunk of pulses in pigpio."""
-        rows = build_rows(duty, self.fwd_mask, self.back_mask, dither,
-                          fixed62=self.fixed62, use_dither=self.use_dither)
+        rows = self._rows(duty, dither)
         data = rows.astype("<u4").tobytes()
         if self._fast and not self._fast_checked:
             # Once per run: our bytes must be exactly what pigpio itself
@@ -781,6 +956,29 @@ class Voice:
                 print(f"[VOICE] fast wave path unavailable ({e}) - using the slow path", flush=True)
         if not self._fast:
             self.pi.wave_add_generic([pigpio.pulse(a, b, c) for a, b, c in rows.tolist()])
+
+    def _rows(self, duty, dither):
+        """13b: shared waveform when not driving (the proven path, unchanged),
+        one waveform per motor when the joystick asks for movement."""
+        tgt = self._drive_target()
+        cur = self._drive_cur
+        if len(self.pair_masks) != 2 or (tgt == (0.0, 0.0) and cur == [0.0, 0.0]):
+            self._dith2 = [[0.0], [0.0]]
+            return build_rows(duty, self.fwd_mask, self.back_mask, dither,
+                              fixed62=self.fixed62, use_dither=self.use_dither)
+        n = len(duty)
+        ramp = np.linspace(0.0, 1.0, n, endpoint=False) + 1.0 / n if n else np.zeros(0)
+        rA = cur[0] + (tgt[0] - cur[0]) * ramp          # glide to the new speed over 31 ms
+        rB = cur[1] + (tgt[1] - cur[1]) * ramp
+        self._drive_cur = [float(tgt[0]), float(tgt[1])]
+        g = 1.0 - DRIVE_DUCK * np.maximum(np.abs(rA), np.abs(rB))
+        v = np.asarray(duty, dtype=np.float64) * g
+        dA = np.clip(rA + v, -DUTY_MAX, DUTY_MAX)
+        dB = np.clip(rB + v, -DUTY_MAX, DUTY_MAX)
+        tA, per = _diffuse(dA, self._dith2[0], self.fixed62, self.use_dither)
+        tB, _ = _diffuse(dB, self._dith2[1], self.fixed62, self.use_dither)
+        dither[0] = 0.0
+        return build_rows_dual(tA, tB, per, self.pair_masks[0], self.pair_masks[1])
 
     def _create_wave(self):
         """Create the wave from the added pulses, padded to a fixed size so
@@ -811,6 +1009,8 @@ class Voice:
         the queued wave is started directly - a ~3 ms gap, not 500 ms."""
         pi = self.pi
         pi.wave_clear()
+        self._drive_cur = list(self._drive_target())     # 13b: keep moving through the hand-over
+        self._dith2 = [[0.0], [0.0]]
         underruns = 0               # moments with nothing playing
         relinks = 0                 # lost SYNC links that had to be restarted
         dither = [0.0]

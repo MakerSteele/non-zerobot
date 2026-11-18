@@ -59,15 +59,8 @@
 
 <div id="status">ready</div>
 
-<!-- Live talk: tap to start, tap to stop. Driving is locked while it talks. -->
-<div class="card">
-  <h2>LIVE</h2>
-  <button id="talk-btn" onclick="toggleLive()">TALK</button>
-  <div class="meter"><div id="mic-meter"></div></div>
-  <div class="hint" id="live-stats">dropouts 0 &middot; underruns 0</div>
-  <div class="hint">Tap, talk, tap again. About half a second of delay. The mic stays on for 90 s after you stop, so the next tap is instant. The robot can't drive while it's talking.</div>
-</div>
-
+<!-- 13v: LISTEN, TALK and INTERCOM moved to the drive page (one place for them).
+     This page is for robot speech and sounds: RECORD, FILE, SAY, voice settings. -->
 <!-- Record a clip on the phone, listen to it, then send it. -->
 <div class="card">
   <h2>RECORD</h2>
@@ -76,6 +69,7 @@
     <button id="preview-btn" onclick="previewClip()" disabled>▶ LISTEN</button>
     <button id="send-btn" class="go" onclick="sendRecording()" disabled>SEND</button>
   </div>
+  <div class="meter"><div id="mic-meter"></div></div>
   <div class="hint" id="rec-info">Up to 60 seconds.</div>
 </div>
 
@@ -91,22 +85,35 @@
   <h2>SAY</h2>
   <div class="row">
     <input type="text" id="say-text" placeholder="take me to your leader" maxlength="300"
+           oninput="saveSay()"
            onkeydown="if (event.key === 'Enter') sayText()">
     <button class="go" onclick="sayText()" style="flex:0 0 auto">SAY</button>
+    <button onclick="clearSay()" style="flex:0 0 auto">CLEAR</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <select id="say-voice" onchange="saveVoice(this.value)"
+            style="flex:1;padding:8px;font:inherit;background:inherit;color:inherit">
+      <option value="clear">VOICE: CLEAR ROBOT</option>
+      <option value="robo">VOICE: ROBO</option>
+      <option value="uni">VOICE: UNIROBOT</option>
+      <option value="retro">VOICE: RETRO</option>
+      <option value="high">VOICE: HIGH</option>
+      <option value="classic">VOICE: CLASSIC (old)</option>
+    </select>
   </div>
 </div>
 
 <div class="card">
-  <h2>LOUDNESS <span id="level-val">6</span> / 10</h2>
-  <input type="range" id="level" min="1" max="10" step="1" value="6"
+  <h2>LOUDNESS <span id="level-val">10</span> / 10</h2>
+  <input type="range" id="level" min="1" max="10" step="1" value="10"
          oninput="document.getElementById('level-val').textContent = this.value; sendSoon('level', this.value)"
          onchange="sendNow('level', this.value)">
   <h2 style="margin-top:12px">SMOOTH <span id="smooth-val">5</span> / 10</h2>
   <input type="range" id="smooth" min="0" max="10" step="1" value="5"
          oninput="document.getElementById('smooth-val').textContent = this.value; sendSoon('smooth', this.value)"
          onchange="sendNow('smooth', this.value)">
-  <h2 style="margin-top:12px">CLARITY <span id="clarity-val">0</span> / 10</h2>
-  <input type="range" id="clarity" min="0" max="10" step="1" value="0"
+  <h2 style="margin-top:12px">CLARITY <span id="clarity-val">9</span> / 10</h2>
+  <input type="range" id="clarity" min="0" max="10" step="1" value="9"
          oninput="document.getElementById('clarity-val').textContent = this.value; sendSoon('clarity', this.value)"
          onchange="sendNow('clarity', this.value)">
   <h2 style="margin-top:12px">POWER LIMIT <span id="power-val">75</span>%</h2>
@@ -114,13 +121,19 @@
          oninput="document.getElementById('power-val').textContent = this.value; sendSoon('power', this.value)"
          onchange="sendNow('power', this.value)">
   <div class="hint" id="power-stats">battery -- &middot; drive 0%</div>
+  <div class="hint" id="live-stats">dropouts 0 &middot; underruns 0</div>
+  <h2 style="margin-top:12px">DRIVING</h2>
+  <div class="row">
+    <button id="drive-btn" class="on" onclick="toggleDrive()">DRIVE WHILE TALKING: ON</button>
+  </div>
+  <div class="hint">ON = the joystick still drives while the robot talks. OFF = driving is locked until it finishes.</div>
   <h2 style="margin-top:12px">TONE TEST</h2>
   <div class="row">
-    <button id="fixed62-btn" onclick="toggleTone('fixed62')">62 µs: OFF</button>
+    <button id="fixed62-btn" class="on" onclick="toggleTone('fixed62')">62 µs: ON</button>
     <button id="dither-btn" class="on" onclick="toggleTone('dither')">DITHER: ON</button>
   </div>
-  <div class="hint">Flip these while a clip plays to find the tinny sound. Normal = 62 µs OFF, DITHER ON.
-    Not saved - a restart puts them back to normal.</div>
+  <div class="hint">Normal = 62 µs ON, DITHER ON. 62 µs is saved on the robot (survives restarts
+    and deploys); DITHER goes back to ON after a restart.</div>
   <div class="row" style="margin-top:10px">
     <button onclick="stopAll()">■ STOP SOUND</button>
   </div>
@@ -296,67 +309,14 @@ function micStop() {
 // Leaving the page (switching app, locking the phone) releases the mic.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
-    if (live) toggleLive();
     if (rec) finishRecord();
     micStop();
   }
 });
 
-// ── LIVE ────────────────────────────────────────────────────────────────────
-let live = false, liveSeq = 0, livePending = [], liveCount = 0, liveSid = '';
-
-function liveUser(block) {
-  for (let i = 0; i < block.length; i++) livePending.push(block[i]);
-  liveCount += block.length;
-  while (livePending.length >= LIVE_BLOCK) sendLive(false);
-}
-
-async function toggleLive() {
-  if (rec) { status('stop recording first', 'err'); return; }
-  const btn = document.getElementById('talk-btn');
-  if (live) {
-    live = false;
-    micUser = null;
-    btn.classList.remove('on');
-    btn.textContent = 'TALK';
-    sendLive(true);
-    micIdleLater();
-    status('done talking - mic stays ready for 90 s');
-    return;
-  }
-  try {
-    btn.textContent = 'STARTING MIC...';
-    await ensureMic();
-    // every tap gets its own id, so the robot never mistakes it for the last one
-    liveSid = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    liveSeq = 0; livePending = Array.from(takePreroll()); liveCount = 0;
-    micUser = liveUser;
-    live = true;
-    btn.classList.add('on');
-    btn.textContent = 'TALKING - TAP TO STOP';
-    status('live - talk now', 'ok');
-    while (livePending.length >= LIVE_BLOCK) sendLive(false);
-  } catch (e) {
-    btn.textContent = 'TALK';
-    status(micError(e), 'err');
-  }
-}
-
-function sendLive(end) {
-  const n = end ? livePending.length : LIVE_BLOCK;
-  const block = Float32Array.from(livePending.splice(0, n));
-  const seq = liveSeq++;
-  fetch(`/voice/live?sid=${liveSid}&seq=${seq}${end ? '&end=1' : ''}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/octet-stream' },
-    body: toPcm16(block).buffer
-  }).then(async r => {
-    if (!r.ok && live) {
-      let j = {}; try { j = await r.json(); } catch (e) {}
-      status('robot: ' + (j.message || r.status), 'err');
-    }
-  }).catch(() => { if (live) status('lost contact with the robot', 'err'); });
-}
+// 13v: LIVE talk moved to the drive page (hold TALK / INTERCOM). RECORD and
+// FILE below still use the mic pipeline above.
+let live = false;
 
 function micError(e) {
   if (e && e.name === 'NotAllowedError') return 'Mic permission was refused. Allow it for this site and try again.';
@@ -374,7 +334,6 @@ function recUser(block) {
 }
 
 async function toggleRecord() {
-  if (live) { status('stop live talk first', 'err'); return; }
   const btn = document.getElementById('rec-btn');
   if (rec) { finishRecord(); return; }
   try {
@@ -468,12 +427,41 @@ async function sendFile(input) {
 }
 
 // ── SAY / LEVEL / STOP ──────────────────────────────────────────────────────
+// 13c: the SAY text stays in the box - after SAY, a reload and a redeploy -
+// until CLEAR. Kept on this phone only.
+function saveSay() {
+  try { localStorage.setItem('zb_say_text', document.getElementById('say-text').value); } catch (e) {}
+}
+function clearSay() {
+  const el = document.getElementById('say-text');
+  el.value = '';
+  saveSay();
+  el.focus();
+}
+(function () {
+  try {
+    const t = localStorage.getItem('zb_say_text');
+    if (t) document.getElementById('say-text').value = t;
+  } catch (e) {}
+})();
+
+// 12c: remember the SAY voice on this phone (light convenience only).
+function saveVoice(v) { try { localStorage.setItem('zb_say_voice', v); } catch (e) {} }
+(function () {
+  try {
+    const v = localStorage.getItem('zb_say_voice');
+    const el = document.getElementById('say-voice');
+    if (v && el && [...el.options].some(o => o.value === v)) el.value = v;
+  } catch (e) {}
+})();
+
 async function sayText() {
   const text = document.getElementById('say-text').value.trim();
   if (!text) return;
   try {
-    await post('/voice/say', { text: text }, true);
-    status(`saying "${text}"`, 'ok');
+    const j = await post('/voice/say',
+      { text: text, voice: document.getElementById('say-voice').value }, true);
+    status(`saying "${text}"` + (j.message ? ` \u2014 ${j.message}` : ''), 'ok');
   } catch (e) {
     status(`couldn't say it: ${e.message}`, 'err');
   }
@@ -500,7 +488,7 @@ async function setSmooth(v) {
 }
 
 // 11m: tone-test switches (state comes back from /voice on every poll)
-const tone = { fixed62: false, dither: true };
+const tone = { fixed62: true, dither: true };
 function paintTone() {
   const f = document.getElementById('fixed62-btn'), d = document.getElementById('dither-btn');
   f.textContent = '62 µs: ' + (tone.fixed62 ? 'ON' : 'OFF'); f.classList.toggle('on', tone.fixed62);
@@ -513,6 +501,21 @@ async function toggleTone(name) {
     const j = await post('/voice/level', { [name]: tone[name] }, true);
     if (j && j.fixed62 !== undefined) { tone.fixed62 = j.fixed62; tone.dither = j.dither; paintTone(); }
   } catch (e) { status(`${name} not set: ${e.message}`, 'err'); }
+}
+
+// 13b: drive-while-talking switch (state comes back from /voice on every poll)
+let driveOn = true;
+function paintDrive() {
+  const b = document.getElementById('drive-btn');
+  b.textContent = 'DRIVE WHILE TALKING: ' + (driveOn ? 'ON' : 'OFF'); b.classList.toggle('on', driveOn);
+}
+async function toggleDrive() {
+  driveOn = !driveOn;
+  paintDrive();
+  try {
+    const j = await post('/voice/level', { drive: driveOn }, true);
+    if (j && j.drive !== undefined) { driveOn = j.drive; paintDrive(); }
+  } catch (e) { status(`drive switch not set: ${e.message}`, 'err'); }
 }
 
 // 11c: sliders send WHILE you drag (at most every 150 ms), plus once on release,
@@ -534,10 +537,11 @@ function sendSoon(name, v) {
 }
 
 async function stopAll() {
-  if (live) toggleLive();
   try { await post('/voice/stop', {}, true); status('stopped'); }
   catch (e) { status(e.message, 'err'); }
 }
+
+// 13v: LISTEN and INTERCOM moved to the drive page.
 
 // ── STATUS ──────────────────────────────────────────────────────────────────
 async function pollVoice() {
@@ -568,6 +572,9 @@ async function pollVoice() {
       document.getElementById('smooth-val').textContent = Math.round(j.smooth);
     }
     if (j.fixed62 !== undefined) { tone.fixed62 = j.fixed62; tone.dither = j.dither; paintTone(); }
+    if (j.drive_while_talking !== undefined && j.drive_while_talking !== driveOn) {
+      driveOn = j.drive_while_talking; paintDrive();
+    }
     // dropouts = audio arrived late over WiFi; underruns = the Pi couldn't keep up
     document.getElementById('live-stats').textContent =
       `buffer ${j.buffer_ms || 0} ms · dropouts ${j.dropouts || 0} (WiFi) · ` +
@@ -594,7 +601,7 @@ pollBattery();
 setInterval(pollBattery, 2000);
 
 pollVoice();
-setInterval(() => { if (live || document.visibilityState === 'visible') pollVoice(); }, 700);
+setInterval(() => { if (document.visibilityState === 'visible') pollVoice(); }, 700);
 
 if (!window.isSecureContext) {
   status('Open this page as https://' + location.hostname + ':5443/talk for the mic. SAY and files still work here.', 'err');

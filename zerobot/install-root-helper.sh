@@ -17,14 +17,15 @@ U="${SUDO_USER:-}"
 if [ -z "$U" ] || [ "$U" = root ]; then
   echo "run it from your own login with sudo (not as root directly), so the rule is for the right user"; exit 1
 fi
-for f in zerobot-root.sh powersave.sh; do
+for f in zerobot-root.sh powersave.sh pcm_swap.py; do
   [ -f "$f" ] || { echo "[FAIL] $f not found next to this script"; exit 1; }
 done
 
 install -o root -g root -m 755 zerobot-root.sh /usr/local/sbin/zerobot-root
 install -d -o root -g root -m 755 /usr/local/lib/zerobot
 install -o root -g root -m 644 powersave.sh /usr/local/lib/zerobot/powersave.sh
-echo "[DONE] helper installed: /usr/local/sbin/zerobot-root (+ /usr/local/lib/zerobot/powersave.sh)"
+install -o root -g root -m 644 pcm_swap.py /usr/local/lib/zerobot/pcm_swap.py
+echo "[DONE] helper installed: /usr/local/sbin/zerobot-root (+ powersave.sh, pcm_swap.py in /usr/local/lib/zerobot)"
 
 RULE="/etc/sudoers.d/zerobot-root"
 TMP=$(mktemp)
