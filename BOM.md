@@ -81,7 +81,7 @@ Everything needed for **one** Non-Zerobot. Quantities are per robot.
 | 2 | M3 heat-set insert, about 4–5 mm long | In the battery lid. Any brass M3 insert works |
 | 2 | Wheel screw | Comes with the Hiwonder motors |
 | 4 | M2 self-tapping pan-head screw, 4–6 mm long (M2 × 4 on the original) | Mounts the carrier. They screw straight into the standoffs printed on the chassis deck, so no spacers needed. **Use M2, not M2.3:** the board's holes are 2.2 mm. Used on the original: [Amazon](https://a.co/d/059v6QbO) HanTof 750-piece M1.7–M3 assortment |
-| 1 set | Printed parts: middle and upper shell, face panel, 2 motor holders (one mirrored), 2 wheels, 2 tires, 4 LED mounts | STL files and the parts list are in [`models/`](models/README.md). Based on ZDV's ZeroBot Pro V1 ([Thingiverse 3232512](https://www.thingiverse.com/thing:3232512)) |
+| 1 set | Printed parts: lower, middle and upper shell, face panel, 2 motor holders (one mirrored), 2 wheels, 2 tires, 4 LED mounts | STL files and the parts list are in [`models/`](models/README.md). Based on ZDV's ZeroBot Pro V1 ([Thingiverse 3232512](https://www.thingiverse.com/thing:3232512)) |
 
 ## Planned parts (not in the design yet)
 

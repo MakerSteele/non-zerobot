@@ -5,6 +5,7 @@
 | File | Part | Notes |
 |---|---|---|
 | `P-01_SHELL_MIDDLE-SBS-V2.STL` | Middle shell | Heavily modified |
+| `P-03_SHELL_Lower-SBS-V2.STL` | Lower shell | Heavily modified |
 | `P-03_SHELL_UPPER-SBS-V2.STL` | Upper shell | Heavily modified |
 | `P-04_MOTOR_HOLDER-SBS-V2.STL` | Motor holder | Heavily modified |
 | `P-04_MOTOR_HOLDER-SBS-Mirrored-V2.STL` | Motor holder, mirrored | For the other side |
@@ -16,7 +17,7 @@
 ## Printing
 
 - **Material:** the original was printed in PLA and came out well, but any rigid filament works. The **tires** must be **TPU** (flexible).
-- **Shells:** print the upper shell (`P-03`) and the lower shell (`P-01`) **open side down**.
+- **Shells:** print the **upper** and **lower** shells **open side down**.
 - **Supports:** set the support **top Z distance** (called "top contact Z distance" in PrusaSlicer) to **0.25–0.28 mm**. The supports come off much more easily.
 - **Everything else:** no special settings.
 
