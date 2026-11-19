@@ -5,7 +5,7 @@
 | File | Part | Notes |
 |---|---|---|
 | `P-01_SHELL_MIDDLE-SBS-V2.STL` | Middle shell | Heavily modified |
-| `P-03_SHELL_Lower-SBS-V2.STL` | Lower shell | Heavily modified |
+| `P-03_SHELL_Lower-SBS-V3.STL` | Lower shell | Heavily modified. Carrier standoffs match the **Rev G** carrier (V3 moved the front pair; V2 in the history fits Rev F) |
 | `P-02_Battery_Cover-SBS.STL` | Battery lid | New part. Screws into 2 heat-set inserts under the battery bay |
 | `P-03_SHELL_UPPER-SBS-V2.STL` | Upper shell | Heavily modified |
 | `P-04_MOTOR_HOLDER-SBS-V2.STL` | Motor holder | Heavily modified |
