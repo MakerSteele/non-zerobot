@@ -1,0 +1,4399 @@
+(kicad_sch
+  (version 20230121)
+  (generator eeschema)
+  (uuid 71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7)
+  (paper A3)
+  (title_block
+    (title "ZeroBot carrier board")
+    (date 2026-10-11)
+    (rev "E")
+    (company "ZeroBot kit")
+    (comment 1 "Generated from zerobot_carrier_design.py - module sizes marked GUESS in the design page"))
+  (lib_symbols
+    (symbol "Connector_Generic:Conn_01x02"
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "Conn_01x02"
+        (at 0 -5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Conn_01x02_1_1"
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 1.27)
+          (end 1.27 -3.81)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:Polyfuse"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "F"
+        (at -2.54 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "Polyfuse"
+        (at 2.54 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 1.27 -5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "resettable fuse PTC PPTC polyfuse polyswitch"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Resettable fuse, polymeric positive temperature coefficient"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "*polyfuse* *PTC*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Polyfuse_0_1"
+        (rectangle
+          (start -0.762 2.54)
+          (end 0.762 -2.54)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0 -2.54))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -1.524 2.54)
+            (xy -1.524 1.524)
+            (xy 1.524 -1.524)
+            (xy 1.524 -2.54))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "Polyfuse_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:C_Polarized"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0.254))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "C_Polarized"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Polarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "CP_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "C_Polarized_0_1"
+        (rectangle
+          (start -2.286 0.508)
+          (end 2.286 1.016)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -1.778 2.286)
+            (xy -0.762 2.286))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -1.27 2.794)
+            (xy -1.27 1.778))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 2.286 -0.508)
+          (end -2.286 -1.016)
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline))))
+      (symbol "C_Polarized_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Connector_Generic:Conn_01x04"
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "Conn_01x04"
+        (at 0 -7.62 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Conn_01x04_1_1"
+        (rectangle
+          (start -1.27 -4.953)
+          (end 0 -5.207)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 2.667)
+          (end 0 2.413)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 3.81)
+          (end 1.27 -6.35)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))
+        (pin passive line
+          (at -5.08 2.54 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_3"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -5.08 0)
+          (length 3.81)
+          (name "Pin_4"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Connector_Generic:Conn_01x16"
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 20.32 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "Conn_01x16"
+        (at 0 -22.86 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Generic connector, single row, 01x16, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Conn_01x16_1_1"
+        (rectangle
+          (start -1.27 -20.193)
+          (end 0 -20.447)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -17.653)
+          (end 0 -17.907)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -15.113)
+          (end 0 -15.367)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -12.573)
+          (end 0 -12.827)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -10.033)
+          (end 0 -10.287)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -7.493)
+          (end 0 -7.747)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -4.953)
+          (end 0 -5.207)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 2.667)
+          (end 0 2.413)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 5.207)
+          (end 0 4.953)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 7.747)
+          (end 0 7.493)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 10.287)
+          (end 0 10.033)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 12.827)
+          (end 0 12.573)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 15.367)
+          (end 0 15.113)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 17.907)
+          (end 0 17.653)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 19.05)
+          (end 1.27 -21.59)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))
+        (pin passive line
+          (at -5.08 17.78 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -5.08 0)
+          (length 3.81)
+          (name "Pin_10"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "10"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 0)
+          (length 3.81)
+          (name "Pin_11"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "11"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -10.16 0)
+          (length 3.81)
+          (name "Pin_12"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "12"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -12.7 0)
+          (length 3.81)
+          (name "Pin_13"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "13"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -15.24 0)
+          (length 3.81)
+          (name "Pin_14"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "14"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -17.78 0)
+          (length 3.81)
+          (name "Pin_15"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "15"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -20.32 0)
+          (length 3.81)
+          (name "Pin_16"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "16"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 15.24 0)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 12.7 0)
+          (length 3.81)
+          (name "Pin_3"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 10.16 0)
+          (length 3.81)
+          (name "Pin_4"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 7.62 0)
+          (length 3.81)
+          (name "Pin_5"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 5.08 0)
+          (length 3.81)
+          (name "Pin_6"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 2.54 0)
+          (length 3.81)
+          (name "Pin_7"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_8"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_9"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "9"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Connector_Generic:Conn_01x06"
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 7.62 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "Conn_01x06"
+        (at 0 -10.16 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Conn_01x06_1_1"
+        (rectangle
+          (start -1.27 -7.493)
+          (end 0 -7.747)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -4.953)
+          (end 0 -5.207)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 2.667)
+          (end 0 2.413)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 5.207)
+          (end 0 4.953)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 6.35)
+          (end 1.27 -8.89)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))
+        (pin passive line
+          (at -5.08 5.08 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 2.54 0)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_3"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_4"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -5.08 0)
+          (length 3.81)
+          (name "Pin_5"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 0)
+          (length 3.81)
+          (name "Pin_6"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Connector_Generic:Conn_02x10_Odd_Even"
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 1.27 12.7 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "Conn_02x10_Odd_Even"
+        (at 1.27 -15.24 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Generic connector, double row, 02x10, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "Connector*:*_2x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Conn_02x10_Odd_Even_1_1"
+        (rectangle
+          (start -1.27 -12.573)
+          (end 0 -12.827)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -10.033)
+          (end 0 -10.287)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -7.493)
+          (end 0 -7.747)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -4.953)
+          (end 0 -5.207)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 2.667)
+          (end 0 2.413)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 5.207)
+          (end 0 4.953)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 7.747)
+          (end 0 7.493)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 10.287)
+          (end 0 10.033)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 11.43)
+          (end 3.81 -13.97)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))
+        (rectangle
+          (start 3.81 -12.573)
+          (end 2.54 -12.827)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 -10.033)
+          (end 2.54 -10.287)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 -7.493)
+          (end 2.54 -7.747)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 -4.953)
+          (end 2.54 -5.207)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 -2.413)
+          (end 2.54 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 0.127)
+          (end 2.54 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 2.667)
+          (end 2.54 2.413)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 5.207)
+          (end 2.54 4.953)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 7.747)
+          (end 2.54 7.493)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start 3.81 10.287)
+          (end 2.54 10.033)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (pin passive line
+          (at -5.08 10.16 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 0 180)
+          (length 3.81)
+          (name "Pin_10"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "10"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_11"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "11"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 -2.54 180)
+          (length 3.81)
+          (name "Pin_12"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "12"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -5.08 0)
+          (length 3.81)
+          (name "Pin_13"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "13"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 -5.08 180)
+          (length 3.81)
+          (name "Pin_14"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "14"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 0)
+          (length 3.81)
+          (name "Pin_15"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "15"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 -7.62 180)
+          (length 3.81)
+          (name "Pin_16"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "16"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -10.16 0)
+          (length 3.81)
+          (name "Pin_17"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "17"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 -10.16 180)
+          (length 3.81)
+          (name "Pin_18"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "18"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -12.7 0)
+          (length 3.81)
+          (name "Pin_19"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "19"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 10.16 180)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 -12.7 180)
+          (length 3.81)
+          (name "Pin_20"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "20"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 7.62 0)
+          (length 3.81)
+          (name "Pin_3"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 7.62 180)
+          (length 3.81)
+          (name "Pin_4"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 5.08 0)
+          (length 3.81)
+          (name "Pin_5"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 5.08 180)
+          (length 3.81)
+          (name "Pin_6"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 2.54 0)
+          (length 3.81)
+          (name "Pin_7"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 7.62 2.54 180)
+          (length 3.81)
+          (name "Pin_8"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_9"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "9"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Connector_Generic:Conn_01x10"
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 12.7 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "Conn_01x10"
+        (at 0 -15.24 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Generic connector, single row, 01x10, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Conn_01x10_1_1"
+        (rectangle
+          (start -1.27 -12.573)
+          (end 0 -12.827)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -10.033)
+          (end 0 -10.287)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -7.493)
+          (end 0 -7.747)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -4.953)
+          (end 0 -5.207)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 2.667)
+          (end 0 2.413)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 5.207)
+          (end 0 4.953)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 7.747)
+          (end 0 7.493)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 10.287)
+          (end 0 10.033)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 11.43)
+          (end 1.27 -13.97)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))
+        (pin passive line
+          (at -5.08 10.16 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -12.7 0)
+          (length 3.81)
+          (name "Pin_10"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "10"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 7.62 0)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 5.08 0)
+          (length 3.81)
+          (name "Pin_3"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 2.54 0)
+          (length 3.81)
+          (name "Pin_4"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_5"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_6"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -5.08 0)
+          (length 3.81)
+          (name "Pin_7"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -7.62 0)
+          (length 3.81)
+          (name "Pin_8"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -10.16 0)
+          (length 3.81)
+          (name "Pin_9"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "9"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:R"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "R"
+        (at 2.032 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "R"
+        (at 0 0 90)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at -1.778 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "R res resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "R_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "R_0_1"
+        (rectangle
+          (start -1.016 -2.54)
+          (end 1.016 2.54)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "R_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Device:C"
+      (pin_numbers hide)
+      (pin_names
+        (offset 0.254))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "C"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Unpolarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "C_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "C_0_1"
+        (polyline
+          (pts
+            (xy -2.032 -0.762)
+            (xy 2.032 -0.762))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy -2.032 0.762)
+            (xy 2.032 0.762))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "C_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Connector_Generic:Conn_01x05"
+      (pin_names
+        (offset 1.016) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 7.62 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "Conn_01x05"
+        (at 0 -7.62 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "Conn_01x05_1_1"
+        (rectangle
+          (start -1.27 -4.953)
+          (end 0 -5.207)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 2.667)
+          (end 0 2.413)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 5.207)
+          (end 0 4.953)
+          (stroke
+            (width 0.1524)
+            (type default))
+          (fill
+            (type none)))
+        (rectangle
+          (start -1.27 6.35)
+          (end 1.27 -6.35)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))
+        (pin passive line
+          (at -5.08 5.08 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 2.54 0)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_3"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_4"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at -5.08 -5.08 0)
+          (length 3.81)
+          (name "Pin_5"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))))
+    (symbol "Transistor_BJT:PN2222A"
+      (pin_names
+        (offset 0) hide)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "Q"
+        (at 5.08 1.905 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Value" "PN2222A"
+        (at 5.08 0 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
+        (at 5.08 -1.905 0)
+        (effects
+          (font
+            (size 1.27 1.27) italic)
+          (justify left) hide))
+      (property "Datasheet" "https://www.onsemi.com/pub/Collateral/PN2222-D.PDF"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27))
+          (justify left) hide))
+      (property "ki_keywords" "NPN Transistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "1A Ic, 40V Vce, NPN Transistor, General Purpose Transistor, TO-92"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "TO?92*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "PN2222A_0_1"
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0.635 0))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 2.54 -2.54)
+            (xy 0.635 -0.635))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 2.54 2.54)
+            (xy 0.635 0.635))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 0.635 1.905)
+            (xy 0.635 -1.905)
+            (xy 0.635 -1.905))
+          (stroke
+            (width 0.508)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 2.413 -2.413)
+            (xy 1.905 -1.905)
+            (xy 1.905 -1.905))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type none)))
+        (polyline
+          (pts
+            (xy 1.143 -1.651)
+            (xy 1.651 -1.143)
+            (xy 2.159 -2.159)
+            (xy 1.143 -1.651)
+            (xy 1.143 -1.651))
+          (stroke
+            (width 0)
+            (type default))
+          (fill
+            (type outline)))
+        (circle
+          (center 1.27 0)
+          (radius 2.8194)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type none))))
+      (symbol "PN2222A_1_1"
+        (pin passive line
+          (at 2.54 -5.08 90)
+          (length 2.54)
+          (name "E"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -5.08 0 0)
+          (length 5.08)
+          (name "B"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin passive line
+          (at 2.54 5.08 270)
+          (length 2.54)
+          (name "C"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27))))))))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 30.48 45.72 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 19b1b834-ef3e-49bd-95d9-64a2a0598b6c)
+    (property "Reference" "J9"
+      (at 30.48 42.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Battery pads"
+      (at 30.48 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_Wire:SolderWire-0.5sqmm_1x02_P4.8mm_D0.9mm_OD2.3mm"
+      (at 30.48 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 30.48 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 632d893a-8b63-4d35-af27-03ab7ab3aead))
+    (pin "2"
+      (uuid 3212bf83-d644-4dad-843e-7cb3ae793235))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "J9")
+          (unit 1)))))
+  (label "PACK"
+    (at 25.40 45.72 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid d4dbd903-fdf7-4216-bca7-06911d112925))
+  (label "GND"
+    (at 25.40 48.26 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid d6884ef5-68ea-44db-85c2-41ea7d918e6c))
+  (symbol
+    (lib_id "Device:Polyfuse")
+    (at 50.80 45.72 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid f6cbca44-4491-46f2-914f-a8da8e07956b)
+    (property "Reference" "F1"
+      (at 50.80 38.87 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "MF-RG400 (4 A)"
+      (at 50.80 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Fuse:Fuse_Bourns_MF-RG400"
+      (at 50.80 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 50.80 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid c0db686f-14ea-4498-ad21-fb112941edb2))
+    (pin "2"
+      (uuid e4866edd-3274-474a-94b5-c16de9a99af9))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "F1")
+          (unit 1)))))
+  (label "PACK"
+    (at 50.80 41.91 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid b35859d5-f28b-4b41-88f9-69306e296cce))
+  (label "PACK_F"
+    (at 50.80 49.53 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 3e7d9489-2d55-4236-94e2-4a10f0eafe52))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 73.66 45.72 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 9338dc1f-c809-4368-b1ce-530ce71d27bf)
+    (property "Reference" "J10"
+      (at 73.66 42.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Switch pads"
+      (at 73.66 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_Wire:SolderWire-0.5sqmm_1x02_P4.8mm_D0.9mm_OD2.3mm"
+      (at 73.66 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 73.66 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 4fdf3ec4-2c49-4126-9c48-ec5bd71ad271))
+    (pin "2"
+      (uuid a223e992-819b-4855-973e-06ec6246b177))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "J10")
+          (unit 1)))))
+  (label "PACK_F"
+    (at 68.58 45.72 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid cd853177-ea54-4337-b709-239b6654d615))
+  (label "SW"
+    (at 68.58 48.26 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 44b4d044-c493-4ac2-9d56-ce3ca04faf5f))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 96.52 45.72 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 13dab228-be8f-496e-9f46-5805037dd391)
+    (property "Reference" "J2"
+      (at 96.52 42.68 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Charger pads"
+      (at 96.52 52.07 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_Wire:SolderWire-0.5sqmm_1x02_P4.8mm_D0.9mm_OD2.3mm"
+      (at 96.52 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 96.52 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 807b347e-65a5-4b7c-b0a0-b387c83cac27))
+    (pin "2"
+      (uuid 09482372-6a09-4cf9-b881-79be52522f1b))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "J2")
+          (unit 1)))))
+  (label "PACK_F"
+    (at 91.44 45.72 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 9b1f1bcd-b2dd-494b-887e-9d6e8ccf6955))
+  (label "GND"
+    (at 91.44 48.26 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 8e5701e5-5a39-43ea-9957-ebef2bd6d55d))
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 116.84 45.72 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 6c2777be-9f53-44dc-aeef-2f844d17fefb)
+    (property "Reference" "C1"
+      (at 116.84 38.87 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "470u 6.3V"
+      (at 116.84 53.34 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
+      (at 116.84 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 116.84 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid e8ea3c11-0b96-4e57-bf17-8410f5a49847))
+    (pin "2"
+      (uuid 5187d8b9-a506-45bb-ac06-149dbf1ad63b))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "C1")
+          (unit 1)))))
+  (label "SW"
+    (at 116.84 41.91 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 44f07787-1647-4951-82f2-bedacd41a236))
+  (label "GND"
+    (at 116.84 49.53 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 16301cd4-7418-47ad-84d4-9a2ea83e5d47))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x04")
+    (at 30.48 88.90 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 793b83af-d311-4993-bc17-746dd7792d03)
+    (property "Reference" "U1"
+      (at 30.48 83.32 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SX1308 set 5.1 V"
+      (at 30.48 97.79 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "zerobot:SX1308_Module"
+      (at 30.48 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 30.48 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid d514f124-73b3-4cbe-a8ec-b92096f26323))
+    (pin "2"
+      (uuid 550cd671-02a9-4400-b1eb-9e919261dc3a))
+    (pin "3"
+      (uuid 8494e1c5-0d7f-4854-8d95-1c902771b29a))
+    (pin "4"
+      (uuid 2b675be3-7693-440e-87b4-a2f1521892b8))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "U1")
+          (unit 1)))))
+  (label "SW"
+    (at 25.40 86.36 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid cc0ef666-798e-444d-9a05-c738443e5b20))
+  (label "GND"
+    (at 25.40 88.90 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 8c8e4c59-033b-4f59-b178-607e29f2aaf8))
+  (label "5V_SET"
+    (at 25.40 91.44 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 5cdbea46-f8d1-47aa-a0b4-84e99ad9af6f))
+  (label "GND"
+    (at 25.40 93.98 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid ebd001ed-591f-4e69-869c-b52c62b17d74))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 50.80 88.90 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid f141adbf-d1de-4419-9561-00bbef1fdde0)
+    (property "Reference" "JP1"
+      (at 50.80 85.86 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Pi power jumper"
+      (at 50.80 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+      (at 50.80 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 50.80 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 7c4d2a62-ac30-488b-8659-8438964420c7))
+    (pin "2"
+      (uuid 0b5d4fd1-43c0-4db1-9b15-d4f177daf9ae))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "JP1")
+          (unit 1)))))
+  (label "5V_SET"
+    (at 45.72 88.90 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid e2531c2d-a041-45a7-acdb-57427f567170))
+  (label "5V"
+    (at 45.72 91.44 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 55aaf142-ef9a-498b-8f86-0366c70d700d))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x04")
+    (at 73.66 88.90 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 6abfe2c0-d108-46d5-8854-a1a1967b41a8)
+    (property "Reference" "U2"
+      (at 73.66 83.32 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SX1308 set 6.0 V"
+      (at 73.66 97.79 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "zerobot:SX1308_Module"
+      (at 73.66 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 73.66 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid a9357670-5758-4e14-a346-10bcc6946e0e))
+    (pin "2"
+      (uuid 7dff5262-6ac1-40af-9838-206d41ca8be1))
+    (pin "3"
+      (uuid ccc1016a-672b-4fae-91b0-3ead95d284d6))
+    (pin "4"
+      (uuid dd396173-f6ee-4681-accb-409f44019ae2))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "U2")
+          (unit 1)))))
+  (label "SW"
+    (at 68.58 86.36 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 62cf09fc-8dcf-4ccd-af30-4577a829ec06))
+  (label "GND"
+    (at 68.58 88.90 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid c3879041-9ba2-4624-87ad-ef845cf8ea5e))
+  (label "VM_SET"
+    (at 68.58 91.44 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 792a7d31-0836-4cf0-bdb3-bc25358dcc00))
+  (label "GND"
+    (at 68.58 93.98 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 245e7f1d-db7a-4772-b675-3ac6197993ab))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 96.52 88.90 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid a113f947-3bb2-4e15-bb5a-5d9e09d945d9)
+    (property "Reference" "JP2"
+      (at 96.52 85.86 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Motor power jumper"
+      (at 96.52 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+      (at 96.52 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 96.52 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid af6d2d72-5907-4af4-a1ae-e690a81fb3bc))
+    (pin "2"
+      (uuid 7bd41e97-929b-45ec-a59b-a8fde2b6b446))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "JP2")
+          (unit 1)))))
+  (label "VM_SET"
+    (at 91.44 88.90 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 4ca61790-9ded-4936-b7c6-1f8c6ec67087))
+  (label "VM"
+    (at 91.44 91.44 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 16c7b8b6-f4e3-4366-9188-10ab28a00a58))
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 116.84 88.90 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid bb155655-57bf-4353-b73b-8f574c172df3)
+    (property "Reference" "C2"
+      (at 116.84 82.05 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "220u 10V"
+      (at 116.84 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
+      (at 116.84 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 116.84 88.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 91a6814d-99cf-4688-a68c-23e6e48ae63a))
+    (pin "2"
+      (uuid 9315706c-28aa-434d-a90b-319a5b88fcc1))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "C2")
+          (unit 1)))))
+  (label "VM"
+    (at 116.84 85.09 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid ec52232f-60a0-429f-b8fd-f635ece86b6c))
+  (label "GND"
+    (at 116.84 92.71 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid d85f8c56-e187-4f99-ae95-98f483c4854e))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x16")
+    (at 35.56 144.78 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 7cbd1852-e978-4821-a41b-a34d9080aaea)
+    (property "Reference" "U5"
+      (at 35.56 123.96 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "TB6612 HW-166"
+      (at 35.56 168.91 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "zerobot:TB6612_HW166_Socket"
+      (at 35.56 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 35.56 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid f458899f-4c89-4e5b-91a6-69b3ec3645d5))
+    (pin "10"
+      (uuid ff9dcadc-6680-481c-b5fe-747bac869f9d))
+    (pin "11"
+      (uuid eeb6a744-594c-4356-839a-fcb9237521cc))
+    (pin "12"
+      (uuid 4b1e297b-2d51-453e-aa58-672ca94e3e38))
+    (pin "13"
+      (uuid f0493acd-5304-4e98-acbb-b0f6bdaa649d))
+    (pin "14"
+      (uuid 5baf07ff-b511-4ada-aa74-d0cad90e9bd1))
+    (pin "15"
+      (uuid ce388927-8741-467f-9d63-eeecb1b1dc0f))
+    (pin "16"
+      (uuid b07146a6-c14f-49e7-85f3-f381e5435a37))
+    (pin "2"
+      (uuid 0dab3267-23c3-4401-884e-f67262b7b2d7))
+    (pin "3"
+      (uuid 42a673fd-b441-452c-a270-04c6b109beed))
+    (pin "4"
+      (uuid 484455e3-f037-41e7-b8d8-4609e0ef15ba))
+    (pin "5"
+      (uuid 475425ac-06ea-41db-a721-cd3c45e6230a))
+    (pin "6"
+      (uuid 78792887-8e39-4692-898c-c5b6d9c88069))
+    (pin "7"
+      (uuid b67a9c9c-863c-44fe-a754-64e4d4ece704))
+    (pin "8"
+      (uuid de216f4e-e337-4fe3-a15e-104792948748))
+    (pin "9"
+      (uuid bcb75882-3726-420a-b64d-846ffe30c2ae))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "U5")
+          (unit 1)))))
+  (label "3V3"
+    (at 30.48 127.00 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 5e0cd6ab-441a-4a7c-91fc-e8a2e5bb54a1))
+  (label "3V3"
+    (at 30.48 149.86 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 4c0c5b26-88cc-4330-bd50-92d9b152e2cf))
+  (label "GND"
+    (at 30.48 152.40 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 95d50310-d555-4eec-a4e1-f90e9c5f0212))
+  (label "AO1"
+    (at 30.48 154.94 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid f276eb03-6864-487e-8c5d-c4039d251033))
+  (label "AO2"
+    (at 30.48 157.48 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 3188432a-7556-4815-ace7-e8230764c543))
+  (label "BO2"
+    (at 30.48 160.02 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 81741a40-6ae6-402c-a209-b1d365cb0cc5))
+  (label "BO1"
+    (at 30.48 162.56 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid d9a34040-dcd6-4bc8-9eed-9e452cf3e01c))
+  (label "GND"
+    (at 30.48 165.10 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 8395909c-ff42-4b98-880e-91f92e867037))
+  (label "AIN2"
+    (at 30.48 129.54 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 6d09a22d-3732-4752-b81b-605b65c26d46))
+  (label "AIN1"
+    (at 30.48 132.08 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 7645aea6-efb2-40b7-95a1-189055a103f7))
+  (label "3V3"
+    (at 30.48 134.62 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid c8275ba8-be3c-4191-b6d6-a129967e0984))
+  (label "BIN1"
+    (at 30.48 137.16 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid c45033a2-f7d1-4a8e-b30a-d1bc07f81eca))
+  (label "BIN2"
+    (at 30.48 139.70 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid cf0a4961-2064-4013-9283-62bef86e2403))
+  (label "3V3"
+    (at 30.48 142.24 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid d42d7165-8ee9-4967-8c5e-ca75228abf2f))
+  (label "GND"
+    (at 30.48 144.78 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid db236612-972d-4c28-9770-33c0c5bfe601))
+  (label "VM"
+    (at 30.48 147.32 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 0c5b467e-6d32-40b5-be40-73a0b61e9997))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x06")
+    (at 66.04 144.78 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 814583b4-a1d2-4b87-b2d5-ce8b3d7d100f)
+    (property "Reference" "J5"
+      (at 66.04 136.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Left motor socket"
+      (at 66.04 156.21 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_JST:JST_PH_B6B-PH-K_1x06_P2.00mm_Vertical"
+      (at 66.04 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 66.04 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 6ecb9806-41e0-4e25-9043-451ee4174ac2))
+    (pin "2"
+      (uuid 886c1fc2-db43-48a9-9e2f-2f5451dec86f))
+    (pin "3"
+      (uuid 55421e88-3a78-48d6-8761-87a3ac605988))
+    (pin "4"
+      (uuid 0a4c413e-f64d-462a-abbc-ce609c310d62))
+    (pin "5"
+      (uuid e569ee3a-3707-4de8-9d38-1ba5a49134f7))
+    (pin "6"
+      (uuid fce351db-c5ac-48a4-90d9-1a2828cc91a9))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "J5")
+          (unit 1)))))
+  (label "GND"
+    (at 60.96 139.70 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid caa554b3-bd15-4015-826b-bb58f01095d9))
+  (label "ENC_L_H1"
+    (at 60.96 142.24 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 8a031e98-0ff2-41e3-8508-ea00b63baf7c))
+  (label "ENC_L_H2"
+    (at 60.96 144.78 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 0a7d3d40-8909-45fd-8e3e-091a08b91746))
+  (label "3V3"
+    (at 60.96 147.32 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid ee3b98f1-9342-4408-9467-42ba3469ed13))
+  (label "AO1"
+    (at 60.96 149.86 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 27d7e2af-b549-4931-8e96-ff6b79eee6d2))
+  (label "AO2"
+    (at 60.96 152.40 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 566db049-b9b3-4e98-bd16-309a440f9f46))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x06")
+    (at 93.98 144.78 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid a1d22a0a-4efa-4f2c-93c1-34275bb3bb1b)
+    (property "Reference" "J6"
+      (at 93.98 136.66 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Right motor socket"
+      (at 93.98 156.21 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_JST:JST_PH_B6B-PH-K_1x06_P2.00mm_Vertical"
+      (at 93.98 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 93.98 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 528ac34a-bce9-4600-91bd-844dbc527875))
+    (pin "2"
+      (uuid 974819cd-a05c-4f31-9274-22c725d413db))
+    (pin "3"
+      (uuid 35e1e304-747d-4ae1-9418-9b88861d6879))
+    (pin "4"
+      (uuid 8d06b152-8442-456e-ad98-d54883b93de8))
+    (pin "5"
+      (uuid d5a1408a-4fd1-4dbc-a0cb-11784fd8059a))
+    (pin "6"
+      (uuid 9539ecc4-07eb-4b6d-b476-1144e9ec63b8))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "J6")
+          (unit 1)))))
+  (label "GND"
+    (at 88.90 139.70 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid b6230f5c-752f-41fb-94cd-2f78c8b9a541))
+  (label "ENC_R_H1"
+    (at 88.90 142.24 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 17ead542-ae40-418a-aa5d-c4cca8040d21))
+  (label "ENC_R_H2"
+    (at 88.90 144.78 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid c0af55b9-e1b7-43d4-a62e-54d3778a2145))
+  (label "3V3"
+    (at 88.90 147.32 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid df5b72b1-385c-43c3-93e8-81bfa3083961))
+  (label "BO1"
+    (at 88.90 149.86 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 6752cafb-b3e0-4414-962e-2549ce90d850))
+  (label "BO2"
+    (at 88.90 152.40 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid ccb3046f-c228-4b09-b7f9-23e54f06893c))
+  (symbol
+    (lib_id "Connector_Generic:Conn_02x10_Odd_Even")
+    (at 200.66 60.96 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 535a39a8-27a3-4b7e-a50d-1106a61f64fb)
+    (property "Reference" "J1"
+      (at 200.66 47.76 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Pi link header 2x10"
+      (at 200.66 77.47 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x10_P2.54mm_Vertical"
+      (at 200.66 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 200.66 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 0011d835-7c2d-49a3-acdc-5530510c2e97))
+    (pin "10"
+      (uuid ce4a8079-c7a4-4c6a-8c4a-e70f53570ad4))
+    (pin "11"
+      (uuid 61e67614-a681-4330-925f-33a34634b747))
+    (pin "12"
+      (uuid 748eadb5-b93c-4355-96e7-c9d250fba02a))
+    (pin "13"
+      (uuid e36663eb-8e6e-4b5b-8639-b9bf3d864a7d))
+    (pin "14"
+      (uuid 4934797c-0218-4b45-8ed6-3e8c8dc95f28))
+    (pin "15"
+      (uuid 34481257-b72f-4756-b60c-9237f75e1753))
+    (pin "16"
+      (uuid 7f8fabdc-8030-4ede-8356-9e1b34f82112))
+    (pin "17"
+      (uuid 1b7c9c84-d04c-4578-97b9-28a1f7bcf588))
+    (pin "18"
+      (uuid ba20c6d8-c466-4561-a746-1ebcd0493e14))
+    (pin "19"
+      (uuid 31ce59a1-4304-410c-b9b3-68a8fe8e619d))
+    (pin "2"
+      (uuid 3f0a88ec-c12f-4351-95f0-581c789a0ac0))
+    (pin "20"
+      (uuid 1eee59a1-14ce-45e2-b110-9619be1cbd00))
+    (pin "3"
+      (uuid d7e87d29-2077-463f-b2bc-d15db0bf6daf))
+    (pin "4"
+      (uuid 013f0bdb-7454-4953-b545-0a400b680208))
+    (pin "5"
+      (uuid 500003e5-8eac-4eb2-9d91-faccecb83b19))
+    (pin "6"
+      (uuid a597b618-70ea-4684-81f4-1a507940f4fa))
+    (pin "7"
+      (uuid 169341aa-cf06-4da6-8572-d6b1203e5d81))
+    (pin "8"
+      (uuid edd1fe9d-78fe-4a85-a13c-4eac9377ba5c))
+    (pin "9"
+      (uuid 3c4ad433-d346-4f29-8c30-3b5074de0bed))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "J1")
+          (unit 1)))))
+  (label "3V3"
+    (at 195.58 50.80 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 0eb39f05-726e-4c27-9c03-bf07a8b614a3))
+  (label "BIN1"
+    (at 208.28 60.96 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid f7e697a5-9229-427c-91d3-93054fcf7f01))
+  (label "BIN2"
+    (at 195.58 63.50 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 55b6cb59-3192-49a5-a2a5-a207da5e2e37))
+  (label "HL_W"
+    (at 208.28 63.50 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 804a780e-fd9b-4c4f-9530-963cf1cbe296))
+  (label "ENC_L_H1"
+    (at 195.58 66.04 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid c57343c3-3de3-46f6-b963-5a7c45a3a53c))
+  (label "ENC_L_H2"
+    (at 208.28 66.04 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid bbdc7123-e899-4005-aa5c-055e8bfeb78d))
+  (label "HL_R"
+    (at 195.58 68.58 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 17ee2bbb-52b4-4487-80f9-c7215bbc1f26))
+  (label "ENC_R_H1"
+    (at 208.28 68.58 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 1d868aae-42e8-460e-8d27-639fa2700246))
+  (label "ENC_R_H2"
+    (at 195.58 71.12 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid c0d39667-d7dd-49e1-853f-bcc5fec406a1))
+  (label "HL_G"
+    (at 208.28 71.12 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 7231d41a-d04d-43bd-a62c-28ac3218e953))
+  (label "HL_B"
+    (at 195.58 73.66 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 4febfbdc-e28d-469b-957d-c2a07da75aa0))
+  (label "5V"
+    (at 208.28 50.80 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 2be9e68d-867e-4a6b-be30-9257520e670b))
+  (label "GND"
+    (at 208.28 73.66 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid c1a98a1c-2d5f-4e49-8a2d-33327d2577a2))
+  (label "SDA"
+    (at 195.58 53.34 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 2b06a76d-530b-4c7b-97c0-1389ffcf9384))
+  (label "5V"
+    (at 208.28 53.34 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 36e4bb83-5068-4465-9103-2ef7e082e5ef))
+  (label "SCL"
+    (at 195.58 55.88 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 29c0b629-c9e9-48e5-8d77-044740c688a5))
+  (label "GND"
+    (at 208.28 55.88 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid bf776556-2782-419b-be0e-be9cd3f37715))
+  (label "AIN1"
+    (at 195.58 58.42 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid f148ab6f-e107-4ce8-adfd-83de0539bc1d))
+  (label "AIN2"
+    (at 208.28 58.42 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 90cdf747-0e3e-4f77-a108-c3e4985fd349))
+  (label "GND"
+    (at 195.58 60.96 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 4aabcf52-a085-4b1f-996c-541adf6df5bc))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x10")
+    (at 269.24 144.78 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 1ede5eb6-6ebe-4c66-818f-d30fb66a13c8)
+    (property "Reference" "U3"
+      (at 269.24 131.58 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "ADS1115 (CJMCU)"
+      (at 269.24 161.29 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x10_P2.54mm_Vertical"
+      (at 269.24 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 269.24 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid a3b12a3a-00dd-47b1-9e77-76a4b246a75d))
+    (pin "10"
+      (uuid 0410bb4e-9201-43e2-91ac-76b066fd8a1e))
+    (pin "2"
+      (uuid ae580dbd-498a-4aaf-806c-54e074283469))
+    (pin "3"
+      (uuid 67ddc647-fd4c-4325-b3af-a78821f2289d))
+    (pin "4"
+      (uuid 94572eee-8a6a-4618-b111-8162097971c6))
+    (pin "5"
+      (uuid 31a17636-bdd9-49a4-a099-5ad685b8ca61))
+    (pin "6"
+      (uuid 37dc54dd-4725-40ac-9b24-f45bf2dc0661))
+    (pin "7"
+      (uuid 66a340bf-c3b9-4b01-828b-00ce29f3b058))
+    (pin "8"
+      (uuid 2799764a-1e5a-4257-b2d7-6c753cb96778))
+    (pin "9"
+      (uuid fa8405af-4b00-42dc-b243-0b367b1c4e29))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "U3")
+          (unit 1)))))
+  (label "3V3"
+    (at 264.16 134.62 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid b1e5e447-be52-4f71-948d-18567cad63b7))
+  (no_connect
+    (at 264.16 157.48)
+    (uuid 4baee4f8-8d75-43df-88c5-1592e29bb649))
+  (label "GND"
+    (at 264.16 137.16 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 0bfc6d7f-6bfa-4c1d-9600-7c02a50874ae))
+  (label "SCL"
+    (at 264.16 139.70 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid e0ba1445-04a0-4939-9c41-2a6eaf2f6160))
+  (label "SDA"
+    (at 264.16 142.24 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid f2d78973-a139-4275-a40b-2c07bff86dea))
+  (label "GND"
+    (at 264.16 144.78 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 9ae1fbce-1233-418e-a6bd-1c9108ca39c8))
+  (no_connect
+    (at 264.16 147.32)
+    (uuid 348ffb31-5fbd-471a-a2db-2aab9132d5ce))
+  (label "VSENSE"
+    (at 264.16 149.86 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid dd2fdbfd-4e6d-44c5-b874-4b0cab26b6a4))
+  (no_connect
+    (at 264.16 152.40)
+    (uuid 63dc36e7-9f0c-4aee-8062-e0fcc437786e))
+  (no_connect
+    (at 264.16 154.94)
+    (uuid 383e06ce-d742-4f07-b4ab-627bdb665f35))
+  (symbol
+    (lib_id "Device:R")
+    (at 289.56 144.78 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 019f49a2-4264-4512-9b67-e657cd8e1d02)
+    (property "Reference" "R13"
+      (at 289.56 137.93 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10k 1%"
+      (at 289.56 152.40 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 289.56 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 289.56 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid c5de07a3-cb32-4dc0-9111-ca6fde5980f0))
+    (pin "2"
+      (uuid c9ef0782-c9a7-4bd0-97b6-f8995c990caf))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R13")
+          (unit 1)))))
+  (label "SW"
+    (at 289.56 140.97 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid a5faa983-e95a-4756-93f5-7643dc826085))
+  (label "VSENSE"
+    (at 289.56 148.59 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid c2a423b0-1472-44a1-abe8-012d11d7e702))
+  (symbol
+    (lib_id "Device:R")
+    (at 309.88 144.78 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 85437b67-3614-48ee-b3a7-c61581fc7d04)
+    (property "Reference" "R14"
+      (at 309.88 137.93 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "10k 1%"
+      (at 309.88 152.40 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 309.88 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 309.88 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 1de3eeef-807d-4c44-8476-9a81e71c22ef))
+    (pin "2"
+      (uuid 00312a01-d740-43ad-93b6-042458c49fb2))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R14")
+          (unit 1)))))
+  (label "VSENSE"
+    (at 309.88 140.97 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 0907710e-8896-4622-844d-4a25b5b3903e))
+  (label "GND"
+    (at 309.88 148.59 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 2c285d91-0709-4b16-bb91-074c89dfa362))
+  (symbol
+    (lib_id "Device:C")
+    (at 330.20 144.78 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid dc0cd427-a4e2-4f45-822f-db8f9839bc3f)
+    (property "Reference" "C4"
+      (at 330.20 137.93 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "100n"
+      (at 330.20 152.40 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Capacitor_THT:C_Disc_D3.0mm_W1.6mm_P2.50mm"
+      (at 330.20 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 330.20 144.78 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 73961bbb-201f-4332-ae71-1b3e70e354fe))
+    (pin "2"
+      (uuid ec60b2c9-8fb8-41c9-8784-3782d96d1c01))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "C4")
+          (unit 1)))))
+  (label "VSENSE"
+    (at 330.20 140.97 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 32642341-2669-4e6e-a7dc-8641d37e66c0))
+  (label "GND"
+    (at 330.20 148.59 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 1bfbfcf2-a095-4616-9b95-39feb147e0ff))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x05")
+    (at 30.48 215.90 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 0aa9b793-7df9-4802-8243-88c0a61e97a4)
+    (property "Reference" "J7"
+      (at 30.48 207.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Left headlight socket"
+      (at 30.48 224.79 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical"
+      (at 30.48 215.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 30.48 215.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 48d6630b-411b-4759-879b-9ebb59799211))
+    (pin "2"
+      (uuid f2b0d465-593b-4bc9-abb5-ad1f9509b074))
+    (pin "3"
+      (uuid 214371df-7de3-43a1-8657-4032f8228fa0))
+    (pin "4"
+      (uuid 2eeb92fe-f8f4-41e7-b42d-d4cc4eb547c9))
+    (pin "5"
+      (uuid bc100189-dbe0-469c-babd-bc763d1df231))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "J7")
+          (unit 1)))))
+  (label "5V"
+    (at 25.40 210.82 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 50ec37e5-2750-4c44-9e77-5a5bca1e54fa))
+  (label "K_W"
+    (at 25.40 213.36 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid ef9de569-e117-45e6-af2e-3d5cf2751fdd))
+  (label "K_R"
+    (at 25.40 215.90 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 9f3d7d0c-fd8e-4691-8ebe-5d1c0a3587fb))
+  (label "K_G"
+    (at 25.40 218.44 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid ec262c19-9426-428b-ace2-55cf6951b8e6))
+  (label "K_B"
+    (at 25.40 220.98 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 9a9bd06f-0b8d-468e-b253-f1f0b0086de1))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x05")
+    (at 55.88 215.90 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid edda4801-cdb8-436f-b40b-c0b211b3e49a)
+    (property "Reference" "J8"
+      (at 55.88 207.78 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "Right headlight socket"
+      (at 55.88 224.79 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical"
+      (at 55.88 215.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 55.88 215.90 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 6e026abd-2101-4536-b5c3-dfb6fe738812))
+    (pin "2"
+      (uuid 60c1139a-7cac-4a20-93e0-7a5535573d21))
+    (pin "3"
+      (uuid 19d44dd0-903a-48b3-8308-201cf6d9ac55))
+    (pin "4"
+      (uuid e4ac0bbf-8c04-4c79-b63c-3e8e9e301b63))
+    (pin "5"
+      (uuid 35320bb2-67dd-4379-b939-016da8dff52b))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "J8")
+          (unit 1)))))
+  (label "5V"
+    (at 50.80 210.82 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid ca2d9789-f915-419a-aa8b-a01eba3312c9))
+  (label "K_W"
+    (at 50.80 213.36 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid f0332d83-2602-4138-87ca-67fa3ebb2ff5))
+  (label "K_R"
+    (at 50.80 215.90 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 7acfadc7-ba2e-4881-bbc0-1d0d068e40c9))
+  (label "K_G"
+    (at 50.80 218.44 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 7277c0e9-cf97-48fd-ab57-5cde8198fd4a))
+  (label "K_B"
+    (at 50.80 220.98 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid ffd148a8-866f-4ff0-993c-f728fdd0a853))
+  (symbol
+    (lib_id "Transistor_BJT:PN2222A")
+    (at 88.90 205.74 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid ec9febc1-9406-4858-ac8c-50959fd92eae)
+    (property "Reference" "Q1"
+      (at 88.90 197.62 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "PN2222A"
+      (at 88.90 214.63 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
+      (at 88.90 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 88.90 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 1a3af8a3-a12a-403c-a47f-bb0e1959dff9))
+    (pin "2"
+      (uuid 8225e819-340d-4b80-85c0-917dd2dfc8bd))
+    (pin "3"
+      (uuid 64e59ecb-95d6-4119-b366-a98d5f6b835f))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "Q1")
+          (unit 1)))))
+  (label "GND"
+    (at 91.44 210.82 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid a7e84a6d-7b97-4dca-8706-6c7f00fda1fd))
+  (label "Q1B"
+    (at 83.82 205.74 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 5806fc53-796c-40cd-9dee-d71b490ad245))
+  (label "SINK_W"
+    (at 91.44 200.66 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid cb889a40-a8aa-4476-aa1a-2d0ddfd458c1))
+  (symbol
+    (lib_id "Transistor_BJT:PN2222A")
+    (at 111.76 205.74 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 7880b615-8954-4911-91f3-c9c29e55be99)
+    (property "Reference" "Q2"
+      (at 111.76 197.62 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "PN2222A"
+      (at 111.76 214.63 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
+      (at 111.76 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 111.76 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 463a055d-8340-44a7-8b2b-e8e4fe972f29))
+    (pin "2"
+      (uuid 446726ec-18f3-4a8a-8787-245d8cc22a1e))
+    (pin "3"
+      (uuid 11f75907-eb24-4083-b957-06a10bb24b67))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "Q2")
+          (unit 1)))))
+  (label "GND"
+    (at 114.30 210.82 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 699bb3e5-a874-4625-a609-7c1839c133d2))
+  (label "Q2B"
+    (at 106.68 205.74 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 9b66dd57-3d2f-48d3-9a50-0a25772b1909))
+  (label "SINK_R"
+    (at 114.30 200.66 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 233b200f-bb8f-43e3-9853-7351dc7de2e5))
+  (symbol
+    (lib_id "Transistor_BJT:PN2222A")
+    (at 134.62 205.74 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 18f3e41b-2ff0-4459-9cee-fdbc659f30da)
+    (property "Reference" "Q3"
+      (at 134.62 197.62 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "PN2222A"
+      (at 134.62 214.63 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
+      (at 134.62 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 134.62 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid facc0c53-4b95-448a-b03f-eae610cb6ea4))
+    (pin "2"
+      (uuid dac47511-27a0-4929-9cb2-7f5f52424e5f))
+    (pin "3"
+      (uuid 78660f09-8227-4297-bcda-97a0c54a703e))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "Q3")
+          (unit 1)))))
+  (label "GND"
+    (at 137.16 210.82 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 83894527-abd7-42a6-b9ba-9f31e5ec9e8d))
+  (label "Q3B"
+    (at 129.54 205.74 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 5ed3a012-4f09-4821-9c7d-a1be1d30fd3b))
+  (label "SINK_G"
+    (at 137.16 200.66 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 1f6ba8e8-a3ed-4ee4-bb27-b539ebe3740f))
+  (symbol
+    (lib_id "Transistor_BJT:PN2222A")
+    (at 154.94 205.74 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 248a8ac0-9d9b-4364-a74b-2383b2cbb0c2)
+    (property "Reference" "Q4"
+      (at 154.94 197.62 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "PN2222A"
+      (at 154.94 214.63 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
+      (at 154.94 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 154.94 205.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 702ab329-7bc0-474f-b570-a34d71cf079f))
+    (pin "2"
+      (uuid d8746c4f-6ea6-4aa1-96f3-5bd9e90ac0cf))
+    (pin "3"
+      (uuid 28a15579-f90d-445c-b0b3-e08b801955bf))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "Q4")
+          (unit 1)))))
+  (label "GND"
+    (at 157.48 210.82 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 85e775dc-f8ca-46c3-b25a-aaecb176d84c))
+  (label "Q4B"
+    (at 149.86 205.74 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid cfc628df-f208-483e-aafc-93bc440bba95))
+  (label "SINK_B"
+    (at 157.48 200.66 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid ddb4ce2c-9d0f-4829-ac77-e23db2c87329))
+  (symbol
+    (lib_id "Device:R")
+    (at 88.90 236.22 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 2fda0d5b-4992-47d5-baea-533d089d35f2)
+    (property "Reference" "R1"
+      (at 88.90 229.37 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1k"
+      (at 88.90 243.84 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 88.90 236.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 88.90 236.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid eb32a03d-e35f-40ca-8204-33936103bde1))
+    (pin "2"
+      (uuid baf6b8d6-4b91-4543-9d95-8f3fe35c8a29))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R1")
+          (unit 1)))))
+  (label "HL_W"
+    (at 88.90 232.41 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid fc35ecac-31a8-40aa-a96b-ef3442f7d070))
+  (label "Q1B"
+    (at 88.90 240.03 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid c09a2aff-18e4-4747-baa1-93c9cd8e69b7))
+  (symbol
+    (lib_id "Device:R")
+    (at 111.76 236.22 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid e3aae7ce-80e8-4c25-abbf-9210f9835309)
+    (property "Reference" "R2"
+      (at 111.76 229.37 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1k"
+      (at 111.76 243.84 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 111.76 236.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 111.76 236.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid d4701f81-ce63-4999-b748-f27359e3143e))
+    (pin "2"
+      (uuid 6b779346-fd69-4dd9-8e5d-1025f0407b2f))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R2")
+          (unit 1)))))
+  (label "HL_R"
+    (at 111.76 232.41 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid cd64099f-498e-4efa-bfc3-75150fedf031))
+  (label "Q2B"
+    (at 111.76 240.03 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 25281ce6-3ac3-4dc2-8602-4a06227fd5d0))
+  (symbol
+    (lib_id "Device:R")
+    (at 134.62 236.22 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 048b38fe-4fdd-4a94-945c-5f462e14c4bc)
+    (property "Reference" "R3"
+      (at 134.62 229.37 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1k"
+      (at 134.62 243.84 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 134.62 236.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 134.62 236.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid fcc62812-01eb-41fb-8063-1fea38be994e))
+    (pin "2"
+      (uuid 1fde4a76-d4d9-432b-b2d3-1fc00276ddf7))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R3")
+          (unit 1)))))
+  (label "HL_G"
+    (at 134.62 232.41 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid fa4357d0-b1d1-4120-a4c8-c1d9f0e44169))
+  (label "Q3B"
+    (at 134.62 240.03 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 68bf02e2-bbfe-4f19-a4ad-1a2fd3a1edbb))
+  (symbol
+    (lib_id "Device:R")
+    (at 154.94 236.22 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 66df8234-f4ab-4fb6-b839-d7055313daa6)
+    (property "Reference" "R4"
+      (at 154.94 229.37 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "1k"
+      (at 154.94 243.84 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 154.94 236.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 154.94 236.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid cdcb0767-2e12-46c6-8e84-a4e2681d642f))
+    (pin "2"
+      (uuid 2cc35015-4bda-4591-a7ca-dfa2b515d0e6))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R4")
+          (unit 1)))))
+  (label "HL_B"
+    (at 154.94 232.41 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 7e82b53c-2ffa-4ffa-90d1-b638ebdbc18e))
+  (label "Q4B"
+    (at 154.94 240.03 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 54537e28-7882-4f03-9cb7-82d490757bb6))
+  (symbol
+    (lib_id "Device:R")
+    (at 190.50 220.98 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 4630ef73-954a-49e9-ae20-1a4aa40fb1d7)
+    (property "Reference" "R5"
+      (at 190.50 214.13 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "39"
+      (at 190.50 228.60 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 190.50 220.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 190.50 220.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 58cd85ac-ba94-4889-8466-e742d4e33880))
+    (pin "2"
+      (uuid 7d7b05e7-07d9-41f5-8090-970aae30c100))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R5")
+          (unit 1)))))
+  (label "K_W"
+    (at 190.50 217.17 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid afb33496-3d19-47b7-a7b8-016875568ec1))
+  (label "SINK_W"
+    (at 190.50 224.79 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid d68e6ef7-4d61-4803-b913-35a9843b8b41))
+  (symbol
+    (lib_id "Device:R")
+    (at 208.28 220.98 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 728c9dd8-fcc5-4f6d-ace2-a442b357d031)
+    (property "Reference" "R6"
+      (at 208.28 214.13 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "270"
+      (at 208.28 228.60 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 208.28 220.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 208.28 220.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid c6bfe737-692e-4340-8cba-81a9b87a4632))
+    (pin "2"
+      (uuid f5318960-e4b4-4d13-931d-30e17aa240f7))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R6")
+          (unit 1)))))
+  (label "K_R"
+    (at 208.28 217.17 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 90b3d0cd-5385-4eb8-9810-2f74fb916708))
+  (label "SINK_R"
+    (at 208.28 224.79 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid a0f97574-3a9b-475e-ab86-c53abdc6b1bb))
+  (symbol
+    (lib_id "Device:R")
+    (at 226.06 220.98 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 982100bb-02fc-4d86-8966-f78fda2fbb42)
+    (property "Reference" "R7"
+      (at 226.06 214.13 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "180"
+      (at 226.06 228.60 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 226.06 220.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 226.06 220.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 8fcfc970-57a4-420d-b87d-427a6c118d34))
+    (pin "2"
+      (uuid 2ec1c8a7-fd37-4c58-bd63-a448aa8f0980))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R7")
+          (unit 1)))))
+  (label "K_G"
+    (at 226.06 217.17 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 9f8f7b4d-016b-419b-9214-3f4c98a84010))
+  (label "SINK_G"
+    (at 226.06 224.79 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid 06b49649-8b04-424c-9990-e000c4a9b47c))
+  (symbol
+    (lib_id "Device:R")
+    (at 243.84 220.98 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 33fc8c8a-d2f3-49bf-8275-d3224e653334)
+    (property "Reference" "R8"
+      (at 243.84 214.13 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "180"
+      (at 243.84 228.60 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+      (at 243.84 220.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" "~"
+      (at 243.84 220.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 60f20959-0076-47f1-acdf-2dc9db2b76b6))
+    (pin "2"
+      (uuid e96dd9e1-f1ca-492d-bbce-ba2e610959f2))
+    (instances
+      (project "zerobot_carrier"
+        (path "/71efd8b4-4277-4ba7-bdd4-ffdd20f7fdd7"
+          (reference "R8")
+          (unit 1)))))
+  (label "K_B"
+    (at 243.84 217.17 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify left bottom))
+    (uuid 30f74c10-be49-432a-9f9a-be30356cfe48))
+  (label "SINK_B"
+    (at 243.84 224.79 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.0 1.0))
+      (justify right bottom))
+    (uuid ebdb655c-f897-44f5-aa3a-3c03d04ddeab))
+  (text "POWER ENTRY"
+    (at 20.00 25.00 0)
+    (effects
+      (font
+        (size 2.0 2.0))
+      (justify left bottom))
+    (uuid 3d964dbb-13c8-4fd0-9164-b8aae9ed3055))
+  (text "BOOSTS + SAFETY JUMPERS (fit jumper only after metering the boost)"
+    (at 20.00 70.00 0)
+    (effects
+      (font
+        (size 2.0 2.0))
+      (justify left bottom))
+    (uuid 0245d573-b072-4af5-a9b3-40954771bf82))
+  (text "MOTOR DRIVER + MOTORS"
+    (at 20.00 115.00 0)
+    (effects
+      (font
+        (size 2.0 2.0))
+      (justify left bottom))
+    (uuid a41c3d78-beb4-4002-8dbb-c6b371a0e24e))
+  (text "PI LINK HEADER (jumper each pin to the Pi pin named on its label)"
+    (at 165.00 25.00 0)
+    (effects
+      (font
+        (size 2.0 2.0))
+      (justify left bottom))
+    (uuid 7b143b19-989f-4b5b-98d7-e035ec519c6c))
+  (text "BATTERY SENSE"
+    (at 260.00 115.00 0)
+    (effects
+      (font
+        (size 2.0 2.0))
+      (justify left bottom))
+    (uuid 69b49cb6-8340-4015-81cf-14e30ee8a06f))
+  (text "HEADLIGHT DRIVER  (Base kit: Q1 R1 R5.  Plus RGB adds Q2-Q4 R2-R4 R6-R8)"
+    (at 20.00 185.00 0)
+    (effects
+      (font
+        (size 2.0 2.0))
+      (justify left bottom))
+    (uuid e83ce398-8c04-47bd-ad73-0a59f668516d))
+  (text "Labels on pins connect by name. Module pinouts (TB6612 rows, SX1308 pads, ADS1115 order) are best guesses - see design page."
+    (at 20.00 280.00 0)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left bottom))
+    (uuid 39020302-d5cd-4ba0-ba21-659ac767fad7))
+  (sheet_instances
+    (path "/"
+      (page "1"))))

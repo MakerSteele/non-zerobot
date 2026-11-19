@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "zerobot")(type "KiCad")(uri "${KIPRJMOD}/zerobot.pretty")(options "")(descr "ZeroBot custom footprints"))
+)

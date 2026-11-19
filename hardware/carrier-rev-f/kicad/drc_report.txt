@@ -1,0 +1,131 @@
+** Drc report for kicad/zerobot_carrier/zerobot_carrier.kicad_pcb **
+** Created on 2026-10-11 20:21:55 **
+
+** Found 31 DRC violations **
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(5.8750 mm, 68.3250 mm): PCB Text 'SWITCH' on F.Silkscreen
+    @(8.2000 mm, 59.4000 mm): Rect on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(14.7500 mm, 68.7500 mm): PCB Text 'W' on F.Silkscreen
+    @(12.9550 mm, 68.4050 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(14.7500 mm, 68.7500 mm): PCB Text 'W' on F.Silkscreen
+    @(13.6150 mm, 69.1550 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(20.4500 mm, 68.7500 mm): PCB Text 'R' on F.Silkscreen
+    @(18.6550 mm, 68.4050 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(8.2000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(24.0150 mm, 71.5650 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(8.2000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(24.0150 mm, 69.4850 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(8.2000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(24.0150 mm, 71.8950 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(8.2000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(26.1550 mm, 66.5550 mm): Arc on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(8.2000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(24.0150 mm, 69.1550 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(24.0150 mm, 71.8950 mm): Line on F.Silkscreen
+    @(25.9000 mm, 59.4000 mm): Rect on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(25.9000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(26.1500 mm, 68.7500 mm): PCB Text 'G' on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(25.9000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(26.1550 mm, 66.5550 mm): Arc on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(25.9000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(24.0150 mm, 69.1550 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(25.9000 mm, 59.4000 mm): Rect on F.Silkscreen
+    @(24.3550 mm, 68.4050 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(30.0550 mm, 68.4050 mm): Line on F.Silkscreen
+    @(31.8500 mm, 68.7500 mm): PCB Text 'B' on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(26.1500 mm, 68.7500 mm): PCB Text 'G' on F.Silkscreen
+    @(24.3550 mm, 68.4050 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(26.1500 mm, 68.7500 mm): PCB Text 'G' on F.Silkscreen
+    @(24.0150 mm, 69.1550 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(11.2750 mm, 51.2250 mm): PCB Text 'FUSE' on F.Silkscreen
+    @(12.8750 mm, 56.2760 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(11.2750 mm, 51.2250 mm): PCB Text 'FUSE' on F.Silkscreen
+    @(9.6750 mm, 52.8960 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(16.4000 mm, 30.9000 mm): PCB Text 'ADS' on F.Silkscreen
+    @(14.4000 mm, 10.8500 mm): Rect on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(16.6750 mm, 5.3000 mm): PCB Text 'HEAD L' on F.Silkscreen
+    @(9.8750 mm, 5.8250 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(16.6750 mm, 5.3000 mm): PCB Text 'HEAD L' on F.Silkscreen
+    @(23.4750 mm, 5.8250 mm): Line on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(14.4000 mm, 10.8500 mm): Rect on F.Silkscreen
+    @(30.3000 mm, 9.0000 mm): Circle on F.Silkscreen
+[silk_overlap]: Silkscreen overlap
+    Rule: board setup constraints silk; Severity: warning
+    @(38.0250 mm, 35.9250 mm): Circle on F.Silkscreen
+    @(33.1540 mm, 35.9250 mm): PCB Text '220u' on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(3.2000 mm, 77.8000 mm): PCB Text 'ZEROBOT CARRIER F' on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(8.2000 mm, 59.4000 mm): Rect on F.Silkscreen
+[silk_over_copper]: Silkscreen clipped by solder mask
+    Local override; Severity: warning
+    @(25.9000 mm, 59.4000 mm): Rect on F.Silkscreen
+[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
+    Local override; Severity: warning
+    @(-0.0500 mm, -0.0500 mm): Zone [GND] on B.Cu
+    @(10.7750 mm, 24.4750 mm): PTH pad 1 [GND] of J5
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(40.8000 mm, 83.0000 mm): Line on Edge.Cuts
+    @(3.2000 mm, 77.8000 mm): PCB Text 'ZEROBOT CARRIER F' on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(40.8000 mm, 83.0000 mm): Line on Edge.Cuts
+    @(8.2000 mm, 59.4000 mm): Rect on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; Severity: warning
+    @(40.8000 mm, 83.0000 mm): Line on Edge.Cuts
+    @(25.9000 mm, 59.4000 mm): Rect on F.Silkscreen
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** End of Report **
