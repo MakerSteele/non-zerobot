@@ -52,6 +52,7 @@ A carrier circuit board that ties all of this together is in progress and will b
 
 - 🧾 **[BOM.md](BOM.md)**: every part, with part numbers and a DigiKey order list
 - 🔧 **[ASSEMBLY.md](ASSEMBLY.md)**: build the robot step by step (🚧 in progress, not yet tested on a real build)
+- 📘 **[Visual assembly manual (PDF)](docs/NonZerobot_Assembly_Manual.pdf)**: the printed chassis put together, step by step, with pictures (🚧 in progress)
 - 💾 **[INSTALL.md](INSTALL.md)**: install the software. No Linux experience needed
 - 📦 **[Releases](https://github.com/MakerSteele/non-zerobot/releases)**: download just the robot software (`zerobot.zip`)
 

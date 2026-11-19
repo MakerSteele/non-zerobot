@@ -6,6 +6,8 @@ Step-by-step hardware assembly: soldering the carrier board, wiring power, plugg
 >
 > ⚠️ **Status: written for the Rev G carrier board, which is still a draft.** The board files will be added to this repo once a Rev G board has been built and tested. Steps marked 🟫 **To be added** are still open.
 
+📘 **Printed-chassis steps with pictures:** see the [visual assembly manual](docs/NonZerobot_Assembly_Manual.pdf) (PDF, also 🚧 in progress). This page covers the electronics and wiring.
+
 **You'll need:** soldering iron and solder, flush cutters, a multimeter, a small screwdriver, a phone with a web browser, a USB-C phone charger, and a micro-USB charger for setting up the Pi. Parts are in [BOM.md](BOM.md).
 
 ## Three rules that protect your robot
@@ -215,7 +217,7 @@ Turn the Pi over. One pad at one end of the 40-pin header is **square**: that's 
 Pins count in pairs across the row: 1 and 2, then 3 and 4, and so on. Need help finding a pin later? Run `python3 ~/zerobot/findpin.py`.
 
 ### 7.2 Mount the Pi in the lid
-🟫 **To be added:** lid mounting steps come with the final lid design. A mount for the Pi Zero boards is still to be designed.
+Mounting the Pi in the lid is shown in step 6 of the [visual assembly manual](docs/NonZerobot_Assembly_Manual.pdf).
 
 ### 7.3 Wire the Pi link
 Each of the 20 pins on the carrier's Pi link header has a Pi pin number printed beside it. Run one jumper wire from each header pin to that pin on the Pi. Do the power and ground wires first (Pi pins 1, 2, 4, 6, 14, 39), then the rest one at a time.
@@ -251,7 +253,7 @@ Switch off and take the SD card out for this test. Leave the motor jumper off. F
 ## 8. Motors and headlights
 
 ### 8.1 Mount the motors, wheels and skid
-🟫 **To be added:** chassis assembly steps come with the final chassis. The printed parts are based on ZDV's ZeroBot Pro V1 (see [CREDITS.md](CREDITS.md)).
+Follow steps 1–2 (motors and holders), 7 (closing the shells) and 8–9 (tires and wheels) of the [visual assembly manual](docs/NonZerobot_Assembly_Manual.pdf). The printed parts are based on ZDV's ZeroBot Pro V1 (see [CREDITS.md](CREDITS.md)).
 
 ### 8.2 Plug in the motors
 Plug each motor's cable into its motor socket: left motor on the left, right on the right. The plug is keyed, and its **G** wire lands next to the **G** mark. Use the cables **exactly as they came**.
@@ -282,7 +284,7 @@ At the camera end, use the wide end with the contacts toward the camera board.
 
 The software detects the camera by itself, so there's nothing to configure.
 
-🟫 **To be added:** camera mounting steps.
+Mounting the camera on the face panel is shown in step 4 of the [visual assembly manual](docs/NonZerobot_Assembly_Manual.pdf).
 
 ---
 
