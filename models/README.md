@@ -6,6 +6,7 @@
 |---|---|---|
 | `P-01_SHELL_MIDDLE-SBS-V2.STL` | Middle shell | Heavily modified |
 | `P-03_SHELL_Lower-SBS-V2.STL` | Lower shell | Heavily modified |
+| `P-02_Battery_Cover-SBS.STL` | Battery lid | New part. Screws into 2 heat-set inserts under the battery bay |
 | `P-03_SHELL_UPPER-SBS-V2.STL` | Upper shell | Heavily modified |
 | `P-04_MOTOR_HOLDER-SBS-V2.STL` | Motor holder | Heavily modified |
 | `P-04_MOTOR_HOLDER-SBS-Mirrored-V2.STL` | Motor holder, mirrored | For the other side |
