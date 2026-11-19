@@ -10,7 +10,7 @@ This is the carrier board the original Non-Zerobot drives on. It's here so you c
 
 | File | What it is |
 |---|---|
-| `zerobot_carrier_gerbers_JLCPCB.zip` | Gerbers, ready for JLCPCB (2 layers, 1.6 mm) |
+| `zipme/` | Gerbers for JLCPCB (2 layers, 1.6 mm). **Zip the files inside this folder** and upload that zip |
 | `kicad/` | KiCad project (made in KiCad 7; newer versions upgrade it) |
 | `zerobot_carrier.step` | 3D model for CAD |
 | `zerobot_carrier_schematic.pdf` | Schematic |
