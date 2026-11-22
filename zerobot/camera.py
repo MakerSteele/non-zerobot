@@ -641,7 +641,21 @@ def capture_still():
                                     vflip=_cfg.get("vflip", 0)),
                 buffer_count=1,
             )
-            _picam2.switch_mode_and_capture_file(still_cfg, path)
+            # PHOTOFIX1 (22 Nov 2026): stop the MJPEG encoder first. Left running,
+            # it was handed the full-size still frame, died with Errno 14,
+            # and the photo hung holding the camera lock forever.
+            import threading as _th
+            _guard = _th.Timer(30.0, lambda: (print("[CAM] photo hung 30s - restarting service", flush=True), os._exit(1)))
+            _guard.daemon = True
+            _guard.start()
+            try:
+                _picam2.stop_encoder()
+                try:
+                    _picam2.switch_mode_and_capture_file(still_cfg, path)
+                finally:
+                    _picam2.start_encoder(MJPEGEncoder(bitrate=_current_bitrate), FileOutput(_output))
+            finally:
+                _guard.cancel()
         except Exception as exc:
             print(f"[CAM] still capture failed: {exc} - healing pipeline",
                   flush=True)

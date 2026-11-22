@@ -794,6 +794,25 @@ except Exception as e:
     remote_addon = None
     print(f"[WARN] Remote add-on failed to load ({e}) - carrying on without it")
 
+# 20a: further add-ons, loaded AFTER remote (they may build on it). Named here
+# on purpose - nothing else in ~/zerobot_addons is ever imported. Each is a
+# module with attach(app), optional start()/stop(), and optional
+# drive_filter(request, x, y) -> (x, y), which /move applies to the joystick.
+EXTRA_ADDONS = ("guest",)                  # optional add-on, not part of this repo
+extra_addons = []
+if os.path.isdir(ADDON_DIR):
+    import importlib
+    for _name in EXTRA_ADDONS:
+        if not os.path.isfile(os.path.join(ADDON_DIR, _name + ".py")):
+            continue
+        try:
+            _mod = importlib.import_module(_name)
+            _mod.attach(app)
+            extra_addons.append(_mod)
+            print(f"[OK] Add-on: {_name} ({_mod.__file__})")
+        except Exception as e:
+            print(f"[WARN] Add-on {_name} failed to load ({e}) - carrying on without it")
+
 def is_remote():
     """True when this request came over the remote add-on's internet link."""
     return remote_addon is not None and remote_addon.is_remote(request)
@@ -936,6 +955,16 @@ def move():
     data = request.get_json()
     x = float(data.get("x", 0))  # Left/right  (-1 = full left, 1 = full right)
     y = float(data.get("y", 0))  # Fwd/back    (-1 = full back, 1 = full forward)
+    # 20a: add-ons may limit the joystick (Guest Drive's guest speed limit).
+    # A filter that breaks stops the robot rather than letting it run unlimited.
+    for _a in extra_addons:
+        _f = getattr(_a, "drive_filter", None)
+        if _f is not None:
+            try:
+                x, y = _f(request, x, y)
+            except Exception as e:
+                print(f"[WARN] drive filter {_a.__name__} failed ({e}) - stopping", flush=True)
+                x = y = 0.0
 
     global _cmd_timeout
     _cmd_timeout = link_timeout()
@@ -1838,6 +1867,12 @@ def cleanup(sig=None, frame=None):
             remote_addon.stop()             # let the add-on shut down cleanly
         except Exception:
             pass
+    for _a in extra_addons:
+        try:
+            if hasattr(_a, "stop"):
+                _a.stop()
+        except Exception:
+            pass
     if voice is not None:
         voice.stop()
     if GPIO_AVAILABLE:
@@ -2108,6 +2143,12 @@ if __name__ == "__main__":
     start_https(ip)
     if remote_addon is not None:
         remote_addon.start()
+    for _a in extra_addons:
+        try:
+            if hasattr(_a, "start"):
+                _a.start()
+        except Exception as e:
+            print(f"[WARN] Add-on {_a.__name__} didn't start ({e})")
     threading.Thread(target=startup_chime, daemon=True).start()
     print("[INFO] Press Ctrl+C to stop\n")
     app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
