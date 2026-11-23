@@ -878,7 +878,7 @@ def video():
 # push-to-talk mic) fetches /cam/... from here instead. Only GETs of the
 # camera's own read-only paths are relayed. The plain-HTTP page doesn't use
 # this at all - it still talks to :8080 directly, exactly as before.
-_CAM_PATHS = ("stream", "health", "record/status", "record/start", "record/stop")
+_CAM_PATHS = ("stream", "health", "record/status", "record/start", "record/stop", "view/hd")
 
 @app.route("/cam/<path:sub>")
 def cam_relay(sub):

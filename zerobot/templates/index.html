@@ -768,6 +768,9 @@
 
   <!-- Hidden until /health says this camera has an HD mode. -->
   <button class="rec-btn" id="hdrec-btn" onclick="toggleHdRecord()" style="display:none">HD REC</button>
+  <!-- 23a: live stream at HD size (sharper view / close-up camera). Off on every restart.
+       Hidden unless /health says this camera has an HD mode. -->
+  <button class="rec-btn" id="hdview-btn" onclick="toggleHdView()" title="live video at HD size - more lag while on" style="display:none">HD VIEW</button>
   <span class="rec-info" id="rec-info"><a href="#" onclick="openRecordings();return false;" style="color:inherit">FILES</a></span>
   <span class="sd-meter" id="sd-meter" title="SD card space">
     <span class="sd-bar"><span class="sd-fill" id="sd-fill"></span></span>
@@ -1448,8 +1451,39 @@ fetch(`${CAM}/health`, { cache: 'no-store' })
   .then(r => r.json())
   .then(h => {
     if (h && h.hd_available) document.getElementById('hdrec-btn').style.display = '';
+    if (h && (h.view_hd_available || h.view_hd)) {
+      const vb = document.getElementById('hdview-btn');
+      vb.style.display = '';
+      paintHdView(!!h.view_hd);
+    }
   })
   .catch(() => {});
+
+// 23a: HD VIEW - the live stream itself at HD size. The sensor reconfigures,
+// so the video freezes for a few seconds (button says HOLD).
+let hdView = false;
+function paintHdView(on) {
+  hdView = on;
+  const vb = document.getElementById('hdview-btn');
+  if (!vb) return;
+  vb.disabled = false;
+  vb.classList.toggle('on', on);
+  vb.textContent = on ? 'HD VIEW ●' : 'HD VIEW';
+}
+function toggleHdView() {
+  const vb = document.getElementById('hdview-btn');
+  vb.disabled = true;
+  vb.textContent = 'HOLD…';
+  fetch(`${CAM}/view/hd?on=${hdView ? 0 : 1}`, { cache: 'no-store' })
+    .then(r => r.json())
+    .then(s => {
+      if (s.ok === false && s.message) {
+        document.getElementById('rec-info').textContent = String(s.message).slice(0, 28);
+      }
+      paintHdView(!!s.view_hd);
+    })
+    .catch(() => { paintHdView(hdView); });
+}
 
 // Two-tap power off: first tap arms it for 3 s, second tap shuts down.
 let powerArmTimer = null;
