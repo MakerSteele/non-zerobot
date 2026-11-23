@@ -150,6 +150,8 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 "recording": recorder._running,
                 "hd": _hd_active,
                 "hd_available": bool(_cfg.get("_hd_profile")),
+                "view_hd": _view_hd,
+                "view_hd_available": _view_hd_allowed(),
                 "hflip": _cfg.get("hflip", 0),
                 "vflip": _cfg.get("vflip", 0),
                 "size": [_cfg.get("width"), _cfg.get("height")],
@@ -159,6 +161,32 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                 "stamp": STAMP,
                 "pid": os.getpid(),
                 "role": "stream",
+            }).encode()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        elif self.path.startswith('/view/hd'):
+            # 23a: HD VIEW. /view/hd = status, ?on=1 / ?on=0 = switch.
+            q = self.path.split('?', 1)[1] if '?' in self.path else ''
+            want = None
+            for part in q.split('&'):
+                if part == 'on=1':
+                    want = True
+                elif part == 'on=0':
+                    want = False
+            ok, message = True, ''
+            if want is True and not _view_hd_allowed():
+                ok, message = False, "this camera has no HD mode"
+            elif want is not None:
+                ok, message = set_view_hd(want)
+            body = json.dumps({
+                "ok": ok, "message": message, "view_hd": _view_hd,
+                "size": [_cfg.get("width"), _cfg.get("height")],
+                "available": _view_hd_allowed(),
             }).encode()
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -785,6 +813,100 @@ def set_hd(on):
     print(f"[CAM] HD {'on' if on else 'off'}: {mode['width']}x{mode['height']}"
           f"@{mode['fps']:g} {mode['bitrate']} bps", flush=True)
     return mode
+
+
+# ─── HD VIEW (23a) ────────────────────────────────────────────────────────────
+# The LIVE STREAM itself at the camera's HD size (CM3: 1920x1080), every frame
+# sent - sharper driving view, and handy as a close-up camera (wiring,
+# soldering) in streaming software. Off by default and off after every
+# restart: frames are ~4x bigger, so Wi-Fi load goes up while it's on.
+# Proven drivable on a Pi 3B+ with the CM3 (23 Nov 2026).
+#
+# Same sensor readout as normal (full field of view), only the output size and
+# bitrate change. Uses the profile's "hd" geometry, so it appears only on
+# cameras that have an HD REC mode. Stored under "_normal_view", NOT "_normal",
+# so HD REC can run on top of it and put HD VIEW back when the clip ends.
+
+VIEW_HD_BITRATE = 15_000_000   # ~75 KB frames at 25 fps; lower this first if it stutters
+VIEW_HD_MAX_FPS = 25
+# Single-core Pis (Pi Zero W: one ARMv6 core, 2.4 GHz-only Wi-Fi) get a
+# lighter version. UNTESTED ON A ZERO W - a guess at what it can carry.
+if (os.cpu_count() or 1) == 1:
+    VIEW_HD_BITRATE = 6_000_000
+    VIEW_HD_MAX_FPS = 15
+_view_hd = False
+_view_saved = None             # (stream bitrate, record bitrate) to restore
+
+def _view_hd_allowed():
+    """23c: any camera with an HD mode (the same rule as HD REC)."""
+    return bool(_cfg.get("_hd_profile"))
+
+
+def set_view_hd(on):
+    """Switch the live stream between normal and HD size.
+    Returns (ok, message). Every failure path ends with normal view running."""
+    global _view_hd, _view_saved, _stream_bitrate, _record_bitrate
+    hd = _cfg.get("_hd_profile")
+    on = bool(on)
+    if on and not hd:
+        return False, "this camera has no HD mode"
+    if recorder._running or _hd_active:
+        return False, "stop recording first"
+
+    with _camera_lock:
+        if _picam2 is None:
+            return False, "camera not running"
+        if on == _view_hd:
+            return True, ""
+        if on:
+            _cfg["_normal_view"] = {k: _cfg.get(k) for k in _HD_KEYS}
+            for k in _HD_KEYS:
+                _cfg[k] = hd[k]
+            _cfg["fps"] = min(float(hd["fps"]), VIEW_HD_MAX_FPS)
+            _view_saved = (_stream_bitrate, _record_bitrate)
+            _stream_bitrate = VIEW_HD_BITRATE
+            # Normal REC must not drop below what the view already uses.
+            _record_bitrate = max(_record_bitrate, hd["bitrate"])
+        else:
+            normal = _cfg.pop("_normal_view", None)
+            if normal:
+                for k in _HD_KEYS:
+                    _cfg[k] = normal[k]
+            if _view_saved:
+                _stream_bitrate, _record_bitrate = _view_saved
+            _view_saved = None
+
+        _close_camera()
+        time.sleep(0.5)
+        try:
+            _open_camera(_stream_bitrate)
+            _view_hd = on
+        except Exception as exc:
+            print(f"[CAM] HD VIEW {'on' if on else 'off'} failed: {exc} "
+                  f"- back to normal view", flush=True)
+            normal = _cfg.pop("_normal_view", None)
+            if normal:
+                for k in _HD_KEYS:
+                    _cfg[k] = normal[k]
+            if _view_saved:
+                _stream_bitrate, _record_bitrate = _view_saved
+            _view_saved = None
+            _view_hd = False
+            _close_camera()
+            time.sleep(0.5)
+            try:
+                _open_camera(_stream_bitrate)
+            except Exception as exc2:
+                print(f"[CAM] stream restore failed: {exc2}", flush=True)
+            return False, "HD view failed - back to normal"
+
+    if not _wait_for_frame(timeout=_first_frame_timeout()):
+        print("[CAM] no frame yet after HD VIEW switch - watchdog will act if "
+              "it stays dark", flush=True)
+    mode = _running_mode()
+    print(f"[CAM] HD VIEW {'on' if on else 'off'}: {mode['width']}x{mode['height']}"
+          f"@{mode['fps']:g} {mode['bitrate']} bps", flush=True)
+    return True, ""
 
 
 def _close_camera():

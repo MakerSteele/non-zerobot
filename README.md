@@ -17,7 +17,7 @@ It started life as a Raspberry Pi Zero robot — hence the name. Pi Zeros got ha
 ## What it does
 
 - **Drive from any phone** — Android or iPhone, nothing to install. Just open a web page.
-- **Live video** from the Pi camera, with photo and video recording.
+- **Live video** from the Pi camera, with photo and video recording. **HD VIEW** switches the live picture to full HD for a sharper view or close-up work (more Wi-Fi load while it's on; tested on a Pi 3B+ with the Camera Module 3).
 - **RGB headlights** with colour and brightness control.
 - **Drives straight on its own** — the encoder motors let it balance left and right wheel speed automatically.
 - **Talks through its motors** — hold **TALK** and speak into your phone, or type a sentence under ⚙ → **SOUNDS**, and the robot says it out loud by buzzing its drive motors like a speaker.
